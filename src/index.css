@@ -101,7 +101,7 @@ html, body, #root {
 .ml-quiz-badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--tx3); background:var(--bg2); border:1px solid var(--brd); border-radius:100px; padding:6px 16px; }
 .ml-passed-badge { display:inline-flex; align-items:center; gap:10px; background:rgba(107,203,119,0.1); border:1px solid rgba(107,203,119,0.3); border-radius:100px; padding:8px 20px; margin-bottom:24px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--grn); }
 .ml-passed-score { font-size:16px; font-weight:700; }
-.ml-actions { margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.ml-actions { margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
 .ml-btn-reset { padding:10px 20px; border-radius:8px; border:1px solid var(--brd); background:transparent; color:var(--tx3); font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; transition:all 0.2s; }
 .ml-btn-reset:hover { color:var(--red); border-color:var(--red); }
 .ml-btn { display:inline-flex; align-items:center; gap:10px; padding:14px 36px; background:linear-gradient(135deg,var(--co),var(--co-l)); border:none; border-radius:10px; color:#fff; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:600; cursor:pointer; transition:all 0.2s; }
