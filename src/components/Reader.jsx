@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { CHAPTERS } from '../data/chapters';
 import { useProgress } from '../hooks/useProgress';
+import { useSpacedRepetition } from '../hooks/useSpacedRepetition';
 import Cover from './Cover';
 import TOC from './TOC';
 import ModuleLanding from './ModuleLanding';
@@ -11,11 +12,13 @@ import Sidebar from './Sidebar';
 import ProgressBar from './ProgressBar';
 import JourneyMap from './JourneyMap';
 import Certificate from './Certificate';
+import ReviewDashboard from './ReviewDashboard';
+import Analytics from './Analytics';
 
 function buildPages(chapters) {
   const pages = [
     { type: 'cover', id: 'cover', title: 'Capa' },
-    { type: 'toc', id: 'toc', title: 'Índice' },
+    { type: 'toc', id: 'toc', title: 'Indice' },
   ];
   chapters.forEach(ch => {
     pages.push({ type: 'landing', id: `landing-${ch.id}`, chId: ch.id, title: `${ch.num} — ${ch.title}` });
@@ -28,12 +31,15 @@ function buildPages(chapters) {
 const PAGES = buildPages(CHAPTERS);
 
 export default function Reader() {
-  const { progress, saveCurrentPage, recordQuizResult, resetChapter } = useProgress();
+  const { progress, saveCurrentPage, recordQuizResult, resetChapter, completeChallenge, uncompleteChallenge } = useProgress();
+  const srs = useSpacedRepetition();
   const [currentPage, setCurrentPage] = useState(() => progress.currentPage || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [animDir, setAnimDir] = useState('forward');
   const [certData, setCertData] = useState(null);
+  const [showReview, setShowReview] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const page = PAGES[currentPage];
 
@@ -48,6 +54,8 @@ export default function Reader() {
     setCurrentPage(idx);
     saveCurrentPage(idx);
     setSidebarOpen(false);
+    setShowReview(false);
+    setShowAnalytics(false);
   }, [saveCurrentPage]);
 
   const goNext = useCallback(() => { if (canGoNext()) goTo(currentPage + 1, 'forward'); }, [canGoNext, currentPage, goTo]);
@@ -65,21 +73,56 @@ export default function Reader() {
     return () => window.removeEventListener('keydown', handler);
   }, [goNext, goPrev]);
 
-  const handleQuizResult = useCallback((score, passed) => {
+  const handleQuizResult = useCallback((score, passed, questionResults = null) => {
     const alreadyPassed = progress.passedChapters.includes(page.chId);
-    recordQuizResult(page.chId, score, passed);
+    recordQuizResult(page.chId, score, passed, questionResults);
+
+    // Init SRS cards for this chapter on first pass
     if (passed && !alreadyPassed) {
       const ch = CHAPTERS.find(c => c.id === page.chId);
+      srs.initChapterCards(page.chId, ch.quiz.length);
       setCertData({ chapter: ch, score });
     }
-  }, [page, recordQuizResult, progress.passedChapters]);
+  }, [page, recordQuizResult, progress.passedChapters, srs]);
 
   const handleSelectChapter = useCallback((chId) => {
     const idx = PAGES.findIndex(p => p.type === 'landing' && p.chId === chId);
     if (idx !== -1) goTo(idx);
   }, [goTo]);
 
+  const handleResetChapter = useCallback((chId) => {
+    resetChapter(chId);
+    srs.removeChapterCards(chId);
+  }, [resetChapter, srs]);
+
   const renderPage = () => {
+    if (showReview) {
+      return (
+        <ReviewDashboard
+          dueCards={srs.dueCards}
+          boxDistribution={srs.boxDistribution}
+          streak={srs.streak}
+          totalReviews={srs.totalReviews}
+          onReview={srs.processReview}
+          onClose={() => setShowReview(false)}
+          passedCount={progress.passedChapters.length}
+        />
+      );
+    }
+
+    if (showAnalytics) {
+      return (
+        <Analytics
+          progress={progress}
+          boxDistribution={srs.boxDistribution}
+          streak={srs.streak}
+          totalReviews={srs.totalReviews}
+          allCards={srs.allCards}
+          onClose={() => setShowAnalytics(false)}
+        />
+      );
+    }
+
     switch (page.type) {
       case 'cover':
         return <Cover onStart={() => goTo(1)} />;
@@ -102,7 +145,11 @@ export default function Reader() {
             onStart={goNext}
             passed={progress.passedChapters.includes(page.chId)}
             quizResult={progress.quizResults[page.chId]}
-            onReset={() => resetChapter(page.chId)}
+            onReset={() => handleResetChapter(page.chId)}
+            challenges={progress.challenges}
+            onToggleChallenge={(id) => {
+              progress.challenges[id]?.completed ? uncompleteChallenge(id) : completeChallenge(id);
+            }}
           />
         );
       }
@@ -133,21 +180,26 @@ export default function Reader() {
     <div className="reader-wrap">
       <ProgressBar current={currentPage} total={PAGES.length} />
       <div className="reader-stage">
-        <div className={`reader-page active anim-${animDir}`} key={currentPage}>
+        <div className={`reader-page active anim-${animDir}`} key={showReview ? 'review' : showAnalytics ? 'analytics' : currentPage}>
           {renderPage()}
         </div>
       </div>
       <NavBar
         onPrev={goPrev}
         onNext={goNext}
-        canPrev={currentPage > 0}
-        canNext={canGoNext()}
+        canPrev={currentPage > 0 && !showReview && !showAnalytics}
+        canNext={canGoNext() && !showReview && !showAnalytics}
         currentPage={currentPage}
         totalPages={PAGES.length}
-        pageTitle={page.title}
+        pageTitle={showReview ? 'Revisao Espacada' : showAnalytics ? 'Estatisticas' : page.title}
         onToggleSidebar={() => setSidebarOpen(true)}
         onToggleJourney={() => setJourneyOpen(true)}
+        onToggleReview={() => setShowReview(r => !r)}
+        onToggleAnalytics={() => setShowAnalytics(a => !a)}
         isQuizLocked={isQuizLocked}
+        dueReviewCount={srs.dueCards.length}
+        showReview={showReview}
+        showAnalytics={showAnalytics}
       />
       <Sidebar
         open={sidebarOpen}
@@ -167,12 +219,13 @@ export default function Reader() {
             setCertData({ chapter, score });
           }}
           onResetChapter={(chId) => {
-            resetChapter(chId);
+            handleResetChapter(chId);
             const idx = PAGES.findIndex(p => p.type === 'landing' && p.chId === chId);
             if (idx !== -1) goTo(idx);
             setJourneyOpen(false);
           }}
           progress={progress}
+          getChapterDecay={srs.getChapterDecay}
         />
       )}
       {certData && (

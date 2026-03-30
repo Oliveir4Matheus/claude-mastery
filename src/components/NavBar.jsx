@@ -1,4 +1,8 @@
-export default function NavBar({ onPrev, onNext, canPrev, canNext, currentPage, totalPages, pageTitle, onToggleSidebar, onToggleJourney, isQuizLocked }) {
+export default function NavBar({
+  onPrev, onNext, canPrev, canNext, currentPage, totalPages, pageTitle,
+  onToggleSidebar, onToggleJourney, onToggleReview, onToggleAnalytics,
+  isQuizLocked, dueReviewCount, showReview, showAnalytics,
+}) {
   return (
     <nav className="reader-nav">
       <button className="nav-btn" onClick={onPrev} disabled={!canPrev} aria-label="Anterior">
@@ -23,6 +27,27 @@ export default function NavBar({ onPrev, onNext, canPrev, canNext, currentPage, 
           ? <><span className="nav-btn-label">🔒 Aprovação</span> 🔒</>
           : <><span className="nav-btn-label">Próximo</span> →</>
         }
+      </button>
+
+      <button
+        className={`nav-toc-btn ${showReview ? 'active' : ''}`}
+        onClick={onToggleReview}
+        aria-label="Revisão Espaçada"
+        title="Revisão Espaçada (Leitner)"
+      >
+        🧠
+        {dueReviewCount > 0 && (
+          <span className="nav-review-badge">{dueReviewCount > 99 ? '99+' : dueReviewCount}</span>
+        )}
+      </button>
+
+      <button
+        className={`nav-toc-btn ${showAnalytics ? 'active' : ''}`}
+        onClick={onToggleAnalytics}
+        aria-label="Estatísticas"
+        title="Estatísticas de Aprendizado"
+      >
+        📊
       </button>
 
       <button className="nav-toc-btn" onClick={onToggleJourney} aria-label="Mapa da Jornada">

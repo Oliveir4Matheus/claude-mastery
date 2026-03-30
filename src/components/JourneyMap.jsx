@@ -27,7 +27,7 @@ function getDisplayNum(ch, idx) {
   return String(idx + 1).padStart(2, '0');
 }
 
-export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, onResetChapter, progress }) {
+export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, onResetChapter, progress, getChapterDecay }) {
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
   const [popupNode, setPopupNode] = useState(null);
@@ -204,6 +204,26 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                       );
                     })}
                   </g>
+                );
+              })}
+              {/* Decay rings for completed nodes */}
+              {getChapterDecay && nodes.filter(n => n.status === 'completed').map(n => {
+                const decay = getChapterDecay(n.ch.id);
+                if (decay <= 0) return null;
+                const r = NODE_SIZE / 2 + 6;
+                const hue = Math.round(120 * (1 - decay)); // 120=green → 0=red
+                return (
+                  <circle
+                    key={`decay-${n.ch.id}`}
+                    cx={n.cx} cy={n.cy} r={r}
+                    fill="none"
+                    stroke={`hsl(${hue}, 65%, 50%)`}
+                    strokeWidth={3}
+                    opacity={0.5 + decay * 0.4}
+                    strokeDasharray={`${2 * Math.PI * r * (1 - decay * 0.7)}`}
+                    strokeDashoffset={0}
+                    transform={`rotate(-90 ${n.cx} ${n.cy})`}
+                  />
                 );
               })}
             </svg>
