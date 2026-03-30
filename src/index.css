@@ -510,13 +510,45 @@ li { margin-bottom:4px; }
     repeating-linear-gradient(0deg, rgba(90,40,140,0.07) 0px, rgba(90,40,140,0.07) 1px, transparent 1px, transparent 16px),
     repeating-linear-gradient(90deg, rgba(90,40,140,0.07) 0px, rgba(90,40,140,0.07) 1px, transparent 1px, transparent 16px);
 }
+.jm-zone-header {
+  position: absolute; top: 6px; left: 8px; right: 8px;
+  display: flex; align-items: center; gap: 8px;
+  pointer-events: none;
+}
 .jm-zone-tag {
-  position: absolute; top: 8px; left: 10px;
   font-family: 'Press Start 2P', cursive;
   font-size: 7px; color: rgba(255,255,255,0.22);
-  letter-spacing: 1px; pointer-events: none;
+  letter-spacing: 1px;
   white-space: nowrap;
 }
+.jm-zone-done .jm-zone-tag { color: rgba(107,203,119,0.35); }
+.jm-zone-actions {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: auto;
+  pointer-events: all;
+}
+.jm-zone-done-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(107,203,119,0.15);
+  color: var(--grn);
+}
+.jm-zone-btn {
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.4);
+  color: rgba(255,255,255,0.5);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.jm-zone-btn:hover { border-color: var(--co); color: var(--co); background: rgba(232,112,64,0.12); }
+.jm-zone-btn-reset:hover { border-color: var(--red); color: var(--red); background: rgba(232,93,93,0.12); }
 
 /* SVG dos paths */
 .jm-svg { position: absolute; top: 0; left: 0; pointer-events: none; }

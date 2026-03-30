@@ -27,7 +27,7 @@ function getDisplayNum(ch, idx) {
   return String(idx + 1).padStart(2, '0');
 }
 
-export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, onResetChapter, progress, getChapterDecay }) {
+export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, onResetChapter, onResetAndNavigate, progress, getChapterDecay }) {
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
   const [popupNode, setPopupNode] = useState(null);
@@ -64,6 +64,18 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
       };
     });
   }, [progress, currentChId]);
+
+  // World completion data
+  const worldData = useMemo(() => {
+    return WORLDS.map(w => {
+      const worldChapters = CHAPTERS.filter((_, idx) => w.rows.includes(Math.floor(idx / COLS)));
+      const allCompleted = worldChapters.length > 0 && worldChapters.every(ch => progress.passedChapters.includes(ch.id));
+      const avgScore = allCompleted
+        ? Math.round(worldChapters.reduce((sum, ch) => sum + (progress.quizResults[ch.id]?.score || 0), 0) / worldChapters.length)
+        : 0;
+      return { ...w, chapters: worldChapters, allCompleted, avgScore };
+    });
+  }, [progress]);
 
   const numRows = Math.ceil(CHAPTERS.length / COLS);
   const mapW = COLS * CELL_W;
@@ -139,17 +151,41 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
           <div className="jm-map" style={{ width: mapW, height: mapH }}>
 
             {/* Zonas-mundo */}
-            {WORLDS.map(w => (
+            {worldData.map(w => (
               <div
                 key={w.id}
-                className={`jm-zone jm-zone-${w.id}`}
+                className={`jm-zone jm-zone-${w.id} ${w.allCompleted ? 'jm-zone-done' : ''}`}
                 style={{
                   top: Math.min(...w.rows) * CELL_H,
                   height: w.rows.length * CELL_H,
                   width: mapW,
                 }}
               >
-                <span className="jm-zone-tag">{w.emoji} {w.label} — {w.sub}</span>
+                <div className="jm-zone-header">
+                  <span className="jm-zone-tag">{w.emoji} {w.label} — {w.sub}</span>
+                  {w.allCompleted && (
+                    <div className="jm-zone-actions" onClick={e => e.stopPropagation()}>
+                      <span className="jm-zone-done-badge">✓ {w.avgScore}%</span>
+                      <button
+                        className="jm-zone-btn"
+                        onClick={() => onGenerateCertificate(
+                          { id: w.id, icon: w.emoji, title: `${w.label} — ${w.sub}` },
+                          w.avgScore
+                        )}
+                      >
+                        🏆 Certificado
+                      </button>
+                      <button
+                        className="jm-zone-btn jm-zone-btn-reset"
+                        onClick={() => {
+                          w.chapters.forEach(ch => onResetChapter(ch.id));
+                        }}
+                      >
+                        ↺ Refazer
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
 
@@ -265,7 +301,7 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                   </button>
                   <button
                     className="jm-popup-btn jm-popup-btn-reset"
-                    onClick={() => onResetChapter(popupNode.ch.id)}
+                    onClick={() => onResetAndNavigate(popupNode.ch.id)}
                   >
                     ↺ Refazer módulo
                   </button>

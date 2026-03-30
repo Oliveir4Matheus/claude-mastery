@@ -220,6 +220,9 @@ export default function Reader() {
           }}
           onResetChapter={(chId) => {
             handleResetChapter(chId);
+          }}
+          onResetAndNavigate={(chId) => {
+            handleResetChapter(chId);
             const idx = PAGES.findIndex(p => p.type === 'landing' && p.chId === chId);
             if (idx !== -1) goTo(idx);
             setJourneyOpen(false);
