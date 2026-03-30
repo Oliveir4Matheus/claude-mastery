@@ -28,7 +28,7 @@ function buildPages(chapters) {
 const PAGES = buildPages(CHAPTERS);
 
 export default function Reader() {
-  const { progress, saveCurrentPage, recordQuizResult } = useProgress();
+  const { progress, saveCurrentPage, recordQuizResult, resetChapter } = useProgress();
   const [currentPage, setCurrentPage] = useState(() => progress.currentPage || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
@@ -102,6 +102,7 @@ export default function Reader() {
             onStart={goNext}
             passed={progress.passedChapters.includes(page.chId)}
             quizResult={progress.quizResults[page.chId]}
+            onReset={() => resetChapter(page.chId)}
           />
         );
       }
@@ -164,6 +165,12 @@ export default function Reader() {
           onGenerateCertificate={(chapter, score) => {
             setJourneyOpen(false);
             setCertData({ chapter, score });
+          }}
+          onResetChapter={(chId) => {
+            resetChapter(chId);
+            const idx = PAGES.findIndex(p => p.type === 'landing' && p.chId === chId);
+            if (idx !== -1) goTo(idx);
+            setJourneyOpen(false);
           }}
           progress={progress}
         />

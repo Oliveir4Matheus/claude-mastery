@@ -67,5 +67,15 @@ export function useProgress() {
     setProgress(defaultProgress);
   }, []);
 
-  return { progress, saveCurrentPage, recordQuizResult, resetProgress };
+  const resetChapter = useCallback((chapterId) => {
+    setProgress(p => ({
+      ...p,
+      passedChapters: p.passedChapters.filter(id => id !== chapterId),
+      quizResults: Object.fromEntries(
+        Object.entries(p.quizResults).filter(([id]) => id !== chapterId)
+      ),
+    }));
+  }, []);
+
+  return { progress, saveCurrentPage, recordQuizResult, resetProgress, resetChapter };
 }

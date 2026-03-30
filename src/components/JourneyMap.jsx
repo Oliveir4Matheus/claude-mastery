@@ -27,7 +27,7 @@ function getDisplayNum(ch, idx) {
   return String(idx + 1).padStart(2, '0');
 }
 
-export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, progress }) {
+export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, onResetChapter, progress }) {
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
   const [popupNode, setPopupNode] = useState(null);
@@ -237,6 +237,12 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                     onClick={() => onGenerateCertificate(popupNode.ch, popupNode.score)}
                   >
                     🏆 Gerar Certificado
+                  </button>
+                  <button
+                    className="jm-popup-btn jm-popup-btn-reset"
+                    onClick={() => onResetChapter(popupNode.ch.id)}
+                  >
+                    ↺ Refazer módulo
                   </button>
                 </div>
                 <div className="jm-popup-arrow" />

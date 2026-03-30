@@ -1,4 +1,4 @@
-export default function ModuleLanding({ chapter, onStart, passed, quizResult }) {
+export default function ModuleLanding({ chapter, onStart, passed, quizResult, onReset }) {
   return (
     <div className="module-landing">
       <div className="ml-inner">
@@ -20,6 +20,11 @@ export default function ModuleLanding({ chapter, onStart, passed, quizResult }) 
         )}
 
         <div className="ml-actions">
+          {passed && (
+            <button className="ml-btn-reset" onClick={onReset} title="Apaga o progresso deste módulo e recomeça do zero">
+              ↺ Refazer módulo
+            </button>
+          )}
           <button className="ml-btn" onClick={onStart}>
             {passed ? 'Rever capítulo' : 'Começar'} <span className="ml-arrow">→</span>
           </button>
