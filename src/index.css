@@ -809,6 +809,11 @@ li { margin-bottom:4px; }
   background: var(--co);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
+.jm-popup-arrow.arrow-top {
+  bottom: auto;
+  top: -8px;
+  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+}
 
 /* ── Certificate Modal ── */
 .cert-overlay {

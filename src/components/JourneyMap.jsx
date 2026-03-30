@@ -229,13 +229,18 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
             </svg>
 
             {/* Popup de módulo concluído */}
-            {popupNode && (
+            {popupNode && (() => {
+              const popupH = 170;
+              const aboveTop = popupNode.cy - NODE_SIZE / 2 - popupH - 12;
+              const belowTop = popupNode.cy + NODE_SIZE / 2 + 12;
+              const showBelow = aboveTop < 10;
+              return (
               <div
-                className="jm-node-popup"
+                className={`jm-node-popup ${showBelow ? 'below' : ''}`}
                 onClick={e => e.stopPropagation()}
                 style={{
-                  left: popupNode.cx - NODE_SIZE / 2 - 60,
-                  top: popupNode.cy - NODE_SIZE / 2 - 130,
+                  left: Math.max(8, popupNode.cx - 105),
+                  top: showBelow ? belowTop : aboveTop,
                 }}
               >
                 <div className="jm-popup-title">{popupNode.ch.icon} {popupNode.ch.title}</div>
@@ -265,9 +270,10 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                     ↺ Refazer módulo
                   </button>
                 </div>
-                <div className="jm-popup-arrow" />
+                <div className={`jm-popup-arrow ${showBelow ? 'arrow-top' : ''}`} />
               </div>
-            )}
+              );
+            })()}
 
             {/* Nós dos capítulos */}
             {nodes.map(n => (
