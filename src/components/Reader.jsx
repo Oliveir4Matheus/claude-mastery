@@ -10,6 +10,7 @@ import NavBar from './NavBar';
 import Sidebar from './Sidebar';
 import ProgressBar from './ProgressBar';
 import JourneyMap from './JourneyMap';
+import Certificate from './Certificate';
 
 function buildPages(chapters) {
   const pages = [
@@ -32,6 +33,7 @@ export default function Reader() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [animDir, setAnimDir] = useState('forward');
+  const [certData, setCertData] = useState(null);
 
   const page = PAGES[currentPage];
 
@@ -64,8 +66,13 @@ export default function Reader() {
   }, [goNext, goPrev]);
 
   const handleQuizResult = useCallback((score, passed) => {
+    const alreadyPassed = progress.passedChapters.includes(page.chId);
     recordQuizResult(page.chId, score, passed);
-  }, [page, recordQuizResult]);
+    if (passed && !alreadyPassed) {
+      const ch = CHAPTERS.find(c => c.id === page.chId);
+      setCertData({ chapter: ch, score });
+    }
+  }, [page, recordQuizResult, progress.passedChapters]);
 
   const handleSelectChapter = useCallback((chId) => {
     const idx = PAGES.findIndex(p => p.type === 'landing' && p.chId === chId);
@@ -154,7 +161,18 @@ export default function Reader() {
         <JourneyMap
           onClose={() => setJourneyOpen(false)}
           onSelectChapter={handleSelectChapter}
+          onGenerateCertificate={(chapter, score) => {
+            setJourneyOpen(false);
+            setCertData({ chapter, score });
+          }}
           progress={progress}
+        />
+      )}
+      {certData && (
+        <Certificate
+          chapter={certData.chapter}
+          score={certData.score}
+          onClose={() => setCertData(null)}
         />
       )}
     </div>

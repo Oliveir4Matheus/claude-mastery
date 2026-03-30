@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import { CHAPTERS } from '../data/chapters';
 
 const COLS = 4;
@@ -27,9 +27,10 @@ function getDisplayNum(ch, idx) {
   return String(idx + 1).padStart(2, '0');
 }
 
-export default function JourneyMap({ onClose, onSelectChapter, progress }) {
+export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, progress }) {
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
+  const [popupNode, setPopupNode] = useState(null);
 
   const currentChId = useMemo(() => {
     return (
@@ -82,13 +83,22 @@ export default function JourneyMap({ onClose, onSelectChapter, progress }) {
 
   // Fechar com ESC
   useEffect(() => {
-    const h = (e) => { if (e.key === 'Escape') onClose(); };
+    const h = (e) => {
+      if (e.key === 'Escape') {
+        if (popupNode) { setPopupNode(null); return; }
+        onClose();
+      }
+    };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
-  }, [onClose]);
+  }, [onClose, popupNode]);
 
   const handleNodeClick = (node) => {
     if (node.status === 'locked') return;
+    if (node.status === 'completed') {
+      setPopupNode(prev => prev?.ch.id === node.ch.id ? null : node);
+      return;
+    }
     onSelectChapter(node.ch.id);
     onClose();
   };
@@ -125,7 +135,7 @@ export default function JourneyMap({ onClose, onSelectChapter, progress }) {
         </div>
 
         {/* ── Mapa ────────────────────────────────── */}
-        <div className="jm-scroll" ref={scrollRef}>
+        <div className="jm-scroll" ref={scrollRef} onClick={() => setPopupNode(null)}>
           <div className="jm-map" style={{ width: mapW, height: mapH }}>
 
             {/* Zonas-mundo */}
@@ -197,6 +207,41 @@ export default function JourneyMap({ onClose, onSelectChapter, progress }) {
                 );
               })}
             </svg>
+
+            {/* Popup de módulo concluído */}
+            {popupNode && (
+              <div
+                className="jm-node-popup"
+                onClick={e => e.stopPropagation()}
+                style={{
+                  left: popupNode.cx - NODE_SIZE / 2 - 60,
+                  top: popupNode.cy - NODE_SIZE / 2 - 130,
+                }}
+              >
+                <div className="jm-popup-title">{popupNode.ch.icon} {popupNode.ch.title}</div>
+                <div className="jm-popup-score">
+                  {[1,2,3,4,5].map(s => (
+                    <span key={s} className={s <= popupNode.stars ? 'jm-star-on' : 'jm-star-off'}>★</span>
+                  ))}
+                  <span className="jm-popup-pct">&nbsp;{popupNode.score}%</span>
+                </div>
+                <div className="jm-popup-actions">
+                  <button
+                    className="jm-popup-btn jm-popup-btn-go"
+                    onClick={() => { onSelectChapter(popupNode.ch.id); onClose(); }}
+                  >
+                    Ir ao módulo
+                  </button>
+                  <button
+                    className="jm-popup-btn jm-popup-btn-cert"
+                    onClick={() => onGenerateCertificate(popupNode.ch, popupNode.score)}
+                  >
+                    🏆 Gerar Certificado
+                  </button>
+                </div>
+                <div className="jm-popup-arrow" />
+              </div>
+            )}
 
             {/* Nós dos capítulos */}
             {nodes.map(n => (
