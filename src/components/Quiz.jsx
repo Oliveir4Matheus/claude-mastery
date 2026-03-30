@@ -161,6 +161,7 @@ export default function Quiz({ chapter, existingResult, onResult, onNext, onRevi
           ) : passed ? (
             <>
               <button className="quiz-btn-secondary" onClick={onReview}>← Rever capítulo</button>
+              <button className="quiz-btn-secondary" onClick={handleRetry}>🔄 Refazer avaliação</button>
               <button className="quiz-btn-primary" onClick={onNext}>Próximo capítulo →</button>
             </>
           ) : (

@@ -9,6 +9,7 @@ import Quiz from './Quiz';
 import NavBar from './NavBar';
 import Sidebar from './Sidebar';
 import ProgressBar from './ProgressBar';
+import JourneyMap from './JourneyMap';
 
 function buildPages(chapters) {
   const pages = [
@@ -29,6 +30,7 @@ export default function Reader() {
   const { progress, saveCurrentPage, recordQuizResult } = useProgress();
   const [currentPage, setCurrentPage] = useState(() => progress.currentPage || 0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
   const [animDir, setAnimDir] = useState('forward');
 
   const page = PAGES[currentPage];
@@ -64,6 +66,11 @@ export default function Reader() {
   const handleQuizResult = useCallback((score, passed) => {
     recordQuizResult(page.chId, score, passed);
   }, [page, recordQuizResult]);
+
+  const handleSelectChapter = useCallback((chId) => {
+    const idx = PAGES.findIndex(p => p.type === 'landing' && p.chId === chId);
+    if (idx !== -1) goTo(idx);
+  }, [goTo]);
 
   const renderPage = () => {
     switch (page.type) {
@@ -131,6 +138,7 @@ export default function Reader() {
         totalPages={PAGES.length}
         pageTitle={page.title}
         onToggleSidebar={() => setSidebarOpen(true)}
+        onToggleJourney={() => setJourneyOpen(true)}
         isQuizLocked={isQuizLocked}
       />
       <Sidebar
@@ -142,6 +150,13 @@ export default function Reader() {
         passedChapters={progress.passedChapters}
         onNavigate={goTo}
       />
+      {journeyOpen && (
+        <JourneyMap
+          onClose={() => setJourneyOpen(false)}
+          onSelectChapter={handleSelectChapter}
+          progress={progress}
+        />
+      )}
     </div>
   );
 }

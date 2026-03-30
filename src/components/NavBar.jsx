@@ -1,4 +1,4 @@
-export default function NavBar({ onPrev, onNext, canPrev, canNext, currentPage, totalPages, pageTitle, onToggleSidebar, isQuizLocked }) {
+export default function NavBar({ onPrev, onNext, canPrev, canNext, currentPage, totalPages, pageTitle, onToggleSidebar, onToggleJourney, isQuizLocked }) {
   return (
     <nav className="reader-nav">
       <button className="nav-btn" onClick={onPrev} disabled={!canPrev} aria-label="Anterior">
@@ -23,6 +23,10 @@ export default function NavBar({ onPrev, onNext, canPrev, canNext, currentPage, 
           ? <><span className="nav-btn-label">🔒 Aprovação</span> 🔒</>
           : <><span className="nav-btn-label">Próximo</span> →</>
         }
+      </button>
+
+      <button className="nav-toc-btn" onClick={onToggleJourney} aria-label="Mapa da Jornada">
+        🗺 <span className="nav-toc-label">Mapa</span>
       </button>
 
       <button className="nav-toc-btn" onClick={onToggleSidebar} aria-label="Capítulos">
