@@ -251,3 +251,116 @@ th { text-align:left; padding:10px 14px; background:var(--bg2); border-bottom:2p
 td { padding:10px 14px; border-bottom:1px solid var(--brd); color:var(--tx2); }
 ul,ol { padding-left:24px; margin-bottom:14px; }
 li { margin-bottom:4px; }
+
+/* ─────────────────────────────────────────────
+   RESPONSIVO — mobile-first overrides
+   Base: ≤600px  |  md: ≥601px  |  lg: ≥960px
+───────────────────────────────────────────── */
+
+/* ── Nav bar — mobile ── */
+@media (max-width: 600px) {
+  .reader-nav {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  /* Esconde texto dos botões prev/next, mantém só seta */
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+  .nav-btn-label { display: none; }
+
+  .nav-page-title { display: none; }
+
+  .nav-toc-btn {
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+  .nav-toc-label { display: none; }
+}
+
+/* ── Sidebar — ocupa tela inteira em mobile ── */
+@media (max-width: 600px) {
+  .reader-sidebar {
+    width: 100%;
+    right: -100%;
+  }
+}
+
+/* ── Cover — menos padding lateral ── */
+@media (max-width: 600px) {
+  .cover { padding: 48px 20px; }
+  .cover p { font-size: 15px; }
+  .cover-meta { gap: 14px; }
+}
+
+/* ── TOC — compactar ── */
+@media (max-width: 600px) {
+  .toc { padding: 40px 16px 24px; }
+  .toc-progress-section { padding: 0 16px 40px; }
+  .toc-ch-num { min-width: 48px; font-size: 10px; }
+  .toc-ch-status { display: none; }
+  .toc-chapter-item { padding: 10px; gap: 8px; }
+}
+
+/* ── Module Landing — menos espaço ── */
+@media (max-width: 600px) {
+  .module-landing { padding: 40px 20px; }
+  .ml-icon { font-size: 40px; }
+  .ml-btn { padding: 13px 28px; font-size: 15px; }
+  .ml-quiz-badge { font-size: 11px; padding: 5px 12px; }
+}
+
+/* ── Capítulo — padding lateral menor ── */
+@media (max-width: 600px) {
+  .ch { padding: 40px 16px 32px; }
+  .ch-title { font-size: 24px; }
+  .chapter-footer { padding: 20px 16px 48px; }
+  .card { padding: 16px; }
+  .ex { padding: 16px; }
+  .term pre { padding: 12px 14px; font-size: 12px; }
+  .diagram { padding: 20px 14px; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 10px; }
+}
+
+/* ── Quiz — mobile ── */
+@media (max-width: 600px) {
+  .quiz-page { padding: 24px 14px 80px; }
+  .quiz-title { font-size: 26px; }
+  .quiz-subtitle { font-size: 14px; }
+  .quiz-q { padding: 16px; }
+  .quiz-q-text { font-size: 14px; }
+  .quiz-option { padding: 10px 12px; font-size: 13px; gap: 10px; }
+  .qrb-score { font-size: 56px; }
+  .quiz-info-row { gap: 12px; font-size: 11px; }
+  .quiz-result-banner { padding: 20px 16px; }
+
+  /* Botões de ação empilhados em mobile */
+  .quiz-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .quiz-btn-primary,
+  .quiz-btn-secondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* ── md: tablet (601–959px) ── */
+@media (min-width: 601px) and (max-width: 959px) {
+  .ch { padding: 56px 28px 40px; }
+  .toc-progress-section { padding: 0 28px 48px; }
+  .module-landing { padding: 48px 28px; }
+  .quiz-page { padding: 36px 20px 80px; }
+  .reader-sidebar { width: 300px; right: -300px; }
+}
+
+/* ── lg: desktop (≥960px) ── */
+@media (min-width: 960px) {
+  .reader-nav { padding: 10px 28px; gap: 16px; }
+}
