@@ -484,6 +484,7 @@ li { margin-bottom:4px; }
   position: absolute; left: 0;
   background-size: 16px 16px;
   border-bottom: 2px dashed rgba(255,255,255,0.07);
+  pointer-events: none;
 }
 .jm-zone-forest {
   background-color: rgba(15, 35, 15, 0.7);
