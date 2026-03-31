@@ -11,6 +11,8 @@ function generateCode() {
   return `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}`
 }
 
+const VALIDATE_URL = import.meta.env.VITE_VALIDATE_URL || 'https://claude-mastery.app/validate'
+
 function drawCertificate(canvas, name, chapter, score, code) {
   try {
     const ctx = canvas.getContext('2d')
@@ -127,7 +129,7 @@ function drawCertificate(canvas, name, chapter, score, code) {
     ctx.fillStyle = '#6B6560'
     ctx.font = '11px "Courier New", monospace'
     ctx.textAlign = 'center'
-    ctx.fillText(`Valide em: claude-mastery.app/validate/${code}`, W / 2, 660)
+    ctx.fillText(`Valide em: ${VALIDATE_URL}/${code}`, W / 2, 660)
 
     // Footer band
     ctx.fillStyle = '#16161D'
