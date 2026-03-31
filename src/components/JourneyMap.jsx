@@ -287,7 +287,7 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                     width: NODE_SIZE,
                     height: NODE_SIZE,
                   }}
-                  onClick={() => handleNodeClick(n)}
+                  onClick={(e) => { e.stopPropagation(); handleNodeClick(n); }}
                   role={n.status !== 'locked' ? 'button' : undefined}
                   tabIndex={n.status !== 'locked' ? 0 : undefined}
                   onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && handleNodeClick(n)}
