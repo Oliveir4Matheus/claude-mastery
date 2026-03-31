@@ -986,6 +986,15 @@ li { margin-bottom:4px; }
   font-weight: 600;
   color: var(--co);
 }
+.cert-preview-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(232,112,64,0.1);
+  color: var(--co);
+  letter-spacing: 1px;
+}
 .cert-canvas-wrap {
   width: 100%;
   border-radius: 8px;
