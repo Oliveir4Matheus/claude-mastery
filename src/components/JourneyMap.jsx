@@ -30,8 +30,7 @@ function getDisplayNum(ch, idx) {
 export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertificate, onResetChapter, onResetAndNavigate, progress, getChapterDecay }) {
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
-  const [popupNode, setPopupNode] = useState(null);
-  const [expandedWorld, setExpandedWorld] = useState(null);
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
 
   const currentChId = useMemo(() => {
     return (
@@ -98,18 +97,18 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
   useEffect(() => {
     const h = (e) => {
       if (e.key === 'Escape') {
-        if (popupNode) { setPopupNode(null); return; }
+        if (selectedNodeId) { setSelectedNodeId(null); return; }
         onClose();
       }
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
-  }, [onClose, popupNode]);
+  }, [onClose, selectedNodeId]);
 
   const handleNodeClick = (node) => {
     if (node.status === 'locked') return;
     if (node.status === 'completed') {
-      setPopupNode(prev => prev?.ch.id === node.ch.id ? null : node);
+      setSelectedNodeId(prev => prev === node.ch.id ? null : node.ch.id);
       return;
     }
     onSelectChapter(node.ch.id);
@@ -148,7 +147,7 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
         </div>
 
         {/* ── Mapa ────────────────────────────────── */}
-        <div className="jm-scroll" ref={scrollRef} onClick={() => setPopupNode(null)}>
+        <div className="jm-scroll" ref={scrollRef} onClick={() => setSelectedNodeId(null)}>
           <div className="jm-map" style={{ width: mapW, height: mapH }}>
 
             {/* Zonas-mundo */}
@@ -164,68 +163,27 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
               >
                 <div className="jm-zone-header" onClick={e => e.stopPropagation()}>
                   <span className="jm-zone-tag">{w.emoji} {w.label} — {w.sub}</span>
-                  <div className="jm-zone-right">
-                    {w.allCompleted && (
+                  {w.allCompleted && (
+                    <div className="jm-zone-right">
                       <span className="jm-zone-done-badge">✓ {w.avgScore}%</span>
-                    )}
-                    <button
-                      className="jm-zone-btn jm-zone-btn-expand"
-                      onClick={() => setExpandedWorld(prev => prev === w.id ? null : w.id)}
-                    >
-                      {expandedWorld === w.id ? '▲' : '▼'} Modulos
-                    </button>
-                    {w.allCompleted && (
-                      <>
-                        <button
-                          className="jm-zone-btn"
-                          onClick={() => onGenerateCertificate(
-                            { id: w.id, icon: w.emoji, title: `${w.label} — ${w.sub}` },
-                            w.avgScore
-                          )}
-                        >
-                          🏆 Certificado
-                        </button>
-                        <button
-                          className="jm-zone-btn jm-zone-btn-reset"
-                          onClick={() => { w.chapters.forEach(ch => onResetChapter(ch.id)); }}
-                        >
-                          ↺ Refazer
-                        </button>
-                      </>
-                    )}
-                  </div>
+                      <button
+                        className="jm-zone-btn"
+                        onClick={() => onGenerateCertificate(
+                          { id: w.id, icon: w.emoji, title: `${w.label} — ${w.sub}` },
+                          w.avgScore
+                        )}
+                      >
+                        🏆 Certificado
+                      </button>
+                      <button
+                        className="jm-zone-btn jm-zone-btn-reset"
+                        onClick={() => { w.chapters.forEach(ch => onResetChapter(ch.id)); }}
+                      >
+                        ↺ Refazer
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {expandedWorld === w.id && (
-                  <div className="jm-zone-modules" onClick={e => e.stopPropagation()}>
-                    {w.chapters.map(ch => {
-                      const passed = progress.passedChapters.includes(ch.id);
-                      const chScore = progress.quizResults[ch.id]?.score;
-                      return (
-                        <div key={ch.id} className={`jm-mod-item ${passed ? 'done' : 'pending'}`}>
-                          <span className="jm-mod-icon">{ch.icon}</span>
-                          <span className="jm-mod-title">{ch.title}</span>
-                          {passed && <span className="jm-mod-score">{chScore}%</span>}
-                          <div className="jm-mod-actions">
-                            <button
-                              className="jm-mod-btn"
-                              onClick={() => { onSelectChapter(ch.id); onClose(); }}
-                            >
-                              {passed ? '📖 Revisar' : '→ Ir'}
-                            </button>
-                            {passed && (
-                              <button
-                                className="jm-mod-btn jm-mod-btn-cert"
-                                onClick={() => onGenerateCertificate(ch, chScore)}
-                              >
-                                🏆
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             ))}
 
@@ -303,53 +261,6 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                 );
               })}
             </svg>
-
-            {/* Popup de módulo concluído */}
-            {popupNode && (() => {
-              const popupH = 170;
-              const aboveTop = popupNode.cy - NODE_SIZE / 2 - popupH - 12;
-              const belowTop = popupNode.cy + NODE_SIZE / 2 + 12;
-              const showBelow = aboveTop < 10;
-              return (
-              <div
-                className={`jm-node-popup ${showBelow ? 'below' : ''}`}
-                onClick={e => e.stopPropagation()}
-                style={{
-                  left: Math.max(8, popupNode.cx - 105),
-                  top: showBelow ? belowTop : aboveTop,
-                }}
-              >
-                <div className="jm-popup-title">{popupNode.ch.icon} {popupNode.ch.title}</div>
-                <div className="jm-popup-score">
-                  {[1,2,3,4,5].map(s => (
-                    <span key={s} className={s <= popupNode.stars ? 'jm-star-on' : 'jm-star-off'}>★</span>
-                  ))}
-                  <span className="jm-popup-pct">&nbsp;{popupNode.score}%</span>
-                </div>
-                <div className="jm-popup-actions">
-                  <button
-                    className="jm-popup-btn jm-popup-btn-go"
-                    onClick={() => { onSelectChapter(popupNode.ch.id); onClose(); }}
-                  >
-                    Ir ao módulo
-                  </button>
-                  <button
-                    className="jm-popup-btn jm-popup-btn-cert"
-                    onClick={() => onGenerateCertificate(popupNode.ch, popupNode.score)}
-                  >
-                    🏆 Gerar Certificado
-                  </button>
-                  <button
-                    className="jm-popup-btn jm-popup-btn-reset"
-                    onClick={() => onResetAndNavigate(popupNode.ch.id)}
-                  >
-                    ↺ Refazer módulo
-                  </button>
-                </div>
-                <div className={`jm-popup-arrow ${showBelow ? 'arrow-top' : ''}`} />
-              </div>
-              );
-            })()}
 
             {/* Nós dos capítulos */}
             {nodes.map(n => (
@@ -430,6 +341,29 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                 >
                   {n.status === 'locked' ? '???' : n.ch.title}
                 </div>
+
+                {/* Painel de ações (aparece ao clicar no nó concluído) */}
+                {n.status === 'completed' && selectedNodeId === n.ch.id && (
+                  <div
+                    className="jm-node-actions"
+                    onClick={e => e.stopPropagation()}
+                    style={{
+                      left: n.cx - CELL_W / 2 + 2,
+                      top: n.cy + NODE_SIZE / 2 + (n.status === 'completed' ? 40 : 22),
+                      width: CELL_W - 4,
+                    }}
+                  >
+                    <button className="jm-na-btn" onClick={() => { onSelectChapter(n.ch.id); onClose(); }}>
+                      📖 Revisar
+                    </button>
+                    <button className="jm-na-btn" onClick={() => onGenerateCertificate(n.ch, n.score)}>
+                      🏆 Certificado
+                    </button>
+                    <button className="jm-na-btn jm-na-btn-reset" onClick={() => onResetAndNavigate(n.ch.id)}>
+                      ↺ Refazer
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
 

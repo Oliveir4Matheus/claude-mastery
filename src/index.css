@@ -552,48 +552,8 @@ li { margin-bottom:4px; }
   white-space: nowrap;
 }
 .jm-zone-btn:hover { border-color: var(--co); color: var(--co); background: rgba(232,112,64,0.12); }
-.jm-zone-btn-expand { border-color: rgba(255,255,255,0.2); }
 .jm-zone-btn-reset:hover { border-color: var(--red); color: var(--red); background: rgba(232,93,93,0.12); }
 .jm-zone-right { display: flex; align-items: center; gap: 6px; margin-left: auto; pointer-events: all; }
-
-/* Module list inside zone */
-.jm-zone-modules {
-  position: absolute; top: 26px; left: 8px; right: 8px;
-  display: flex; flex-direction: column; gap: 3px;
-  pointer-events: all; z-index: 15;
-  background: rgba(15,15,20,0.95);
-  border: 1px solid var(--brd);
-  border-radius: 6px;
-  padding: 6px;
-  backdrop-filter: blur(8px);
-}
-.jm-mod-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 8px; border-radius: 4px;
-  font-size: 11px; color: var(--tx2);
-  transition: background 0.15s;
-}
-.jm-mod-item.done { color: var(--tx); }
-.jm-mod-item:hover { background: rgba(255,255,255,0.04); }
-.jm-mod-icon { font-size: 13px; flex-shrink: 0; }
-.jm-mod-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.jm-mod-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px; color: var(--grn);
-  flex-shrink: 0;
-}
-.jm-mod-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.jm-mod-btn {
-  padding: 2px 7px; border-radius: 3px;
-  border: 1px solid var(--brd);
-  background: transparent; color: var(--tx3);
-  font-size: 9px; cursor: pointer;
-  transition: all 0.15s; white-space: nowrap;
-  font-family: 'JetBrains Mono', monospace;
-}
-.jm-mod-btn:hover { border-color: var(--co); color: var(--co); }
-.jm-mod-btn-cert { padding: 2px 5px; }
-.jm-mod-btn-cert:hover { border-color: var(--co-l); color: var(--co-l); }
 
 /* SVG dos paths */
 .jm-svg { position: absolute; top: 0; left: 0; pointer-events: none; }
@@ -812,86 +772,33 @@ li { margin-bottom:4px; }
   .jm-legend-stars-guide { display: none; }
 }
 
-/* ── JourneyMap Node Popup ── */
-.jm-node-popup {
+/* ── JourneyMap Node Actions (inline) ── */
+.jm-node-actions {
   position: absolute;
   z-index: 20;
-  width: 210px;
-  background: var(--bg1);
-  border: 1px solid var(--co);
-  border-radius: 10px;
-  padding: 14px 14px 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,112,64,0.15);
-  animation: fadeIn 0.18s ease;
-  pointer-events: all;
-}
-.jm-popup-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--tx);
-  margin-bottom: 6px;
-  line-height: 1.3;
-}
-.jm-popup-score {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.jm-popup-pct {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--tx2);
-}
-.jm-popup-actions {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 4px;
+  pointer-events: all;
+  animation: fadeIn 0.15s ease;
 }
-.jm-popup-btn {
+.jm-na-btn {
   width: 100%;
-  padding: 7px 10px;
-  border-radius: 7px;
+  padding: 6px 8px;
+  border-radius: 5px;
   border: 1px solid var(--brd);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.18s;
-  text-align: center;
-}
-.jm-popup-btn-go {
-  background: var(--bg2);
+  background: rgba(15,15,20,0.92);
+  backdrop-filter: blur(6px);
   color: var(--tx2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  white-space: nowrap;
 }
-.jm-popup-btn-go:hover { border-color: var(--co); color: var(--co); background: rgba(232,112,64,0.08); }
-.jm-popup-btn-cert {
-  background: var(--co);
-  color: #fff;
-  border-color: var(--co);
-  font-weight: 600;
-}
-.jm-popup-btn-cert:hover { background: var(--co-d); border-color: var(--co-d); }
-.jm-popup-btn-reset {
-  background: transparent;
-  color: var(--tx3);
-  border-color: var(--brd);
-}
-.jm-popup-btn-reset:hover { color: var(--red); border-color: var(--red); }
-.jm-popup-arrow {
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 8px;
-  background: var(--co);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-}
-.jm-popup-arrow.arrow-top {
-  bottom: auto;
-  top: -8px;
-  clip-path: polygon(50% 0, 0 100%, 100% 100%);
-}
+.jm-na-btn:hover { border-color: var(--co); color: var(--co); background: rgba(232,112,64,0.12); }
+.jm-na-btn-reset:hover { border-color: var(--red); color: var(--red); background: rgba(232,93,93,0.12); }
 
 /* ── Certificate Modal ── */
 .cert-overlay {
