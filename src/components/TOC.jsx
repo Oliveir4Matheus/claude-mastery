@@ -18,20 +18,27 @@ export default function TOC({ chapters, passedChapters, onChapterClick }) {
           />
         </div>
         <div className="toc-chapter-list">
-          {chapters.map(ch => (
-            <div
-              key={ch.id}
-              className={`toc-chapter-item${passedChapters.includes(ch.id) ? ' passed' : ''}`}
-              onClick={() => onChapterClick(ch.id)}
-            >
-              <span className="toc-ch-icon">{ch.icon}</span>
-              <span className="toc-ch-num">{ch.num}</span>
-              <span className="toc-ch-title">{ch.title}</span>
-              <span className={`toc-ch-status${passedChapters.includes(ch.id) ? ' passed' : ''}`}>
-                {passedChapters.includes(ch.id) ? '✓ Concluído' : '→ Iniciar'}
-              </span>
-            </div>
-          ))}
+          {chapters.map((ch, idx) => {
+            const passed = passedChapters.includes(ch.id);
+            const prevPassed = idx === 0 || passedChapters.includes(chapters[idx - 1]?.id);
+            const locked = !passed && !prevPassed;
+
+            return (
+              <div
+                key={ch.id}
+                className={`toc-chapter-item${passed ? ' passed' : ''}${locked ? ' locked' : ''}`}
+                onClick={() => !locked && onChapterClick(ch.id)}
+                title={locked ? 'Complete o capítulo anterior para desbloquear' : ''}
+              >
+                <span className="toc-ch-icon">{locked ? '🔒' : ch.icon}</span>
+                <span className="toc-ch-num">{ch.num}</span>
+                <span className="toc-ch-title">{locked ? '???' : ch.title}</span>
+                <span className={`toc-ch-status${passed ? ' passed' : ''}`}>
+                  {passed ? '✓ Concluído' : locked ? '🔒' : '→ Iniciar'}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -20,24 +20,29 @@ export default function Sidebar({ open, onClose, chapters, pages, currentPage, p
             onClick={() => onNavigate(tocIdx)}
           >◆ Índice</div>
           <div className="sidebar-divider" />
-          {chapters.map(ch => {
+          {chapters.map((ch, idx) => {
             const landingIdx = pages.findIndex(p => p.type === 'landing' && p.chId === ch.id);
             const chapterIdx = pages.findIndex(p => p.type === 'chapter' && p.chId === ch.id);
             const quizIdx = pages.findIndex(p => p.type === 'quiz' && p.chId === ch.id);
             const isActive = [landingIdx, chapterIdx, quizIdx].includes(currentPage);
             const passed = passedChapters.includes(ch.id);
+            const prevPassed = idx === 0 || passedChapters.includes(chapters[idx - 1]?.id);
+            const locked = !passed && !prevPassed;
 
             return (
               <div
                 key={ch.id}
-                className={`sidebar-item${isActive ? ' active' : ''}`}
-                onClick={() => onNavigate(landingIdx)}
+                className={`sidebar-item${isActive ? ' active' : ''}${locked ? ' locked' : ''}`}
+                onClick={() => !locked && onNavigate(landingIdx)}
+                title={locked ? 'Complete o capítulo anterior para desbloquear' : ch.title}
               >
                 <span className="sidebar-num">{ch.num.replace('Capítulo ', '').replace('Apêndice', 'AP')}</span>
-                <span className="sidebar-item-title">{ch.title}</span>
+                <span className="sidebar-item-title">{locked ? '???' : ch.title}</span>
                 {passed
                   ? <span className="sidebar-status passed" title="Aprovado">✓</span>
-                  : <span className="sidebar-status locked" title="Não concluído">○</span>
+                  : locked
+                    ? <span className="sidebar-status locked" title="Bloqueado">🔒</span>
+                    : <span className="sidebar-status" title="Disponível">○</span>
                 }
               </div>
             );
