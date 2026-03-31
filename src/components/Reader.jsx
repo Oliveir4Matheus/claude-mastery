@@ -30,10 +30,22 @@ function buildPages(chapters) {
 
 const PAGES = buildPages(CHAPTERS);
 
-export default function Reader() {
-  const { progress, saveCurrentPage, recordQuizResult, resetChapter, completeChallenge, uncompleteChallenge } = useProgress();
+export default function Reader({ auth }) {
+  const { progress, saveCurrentPage, recordQuizResult, resetChapter, completeChallenge, uncompleteChallenge, hydrateFromServer } = useProgress();
   const srs = useSpacedRepetition();
   const [currentPage, setCurrentPage] = useState(() => progress.currentPage || 0);
+
+  // Sync from server on mount if authenticated
+  useEffect(() => {
+    if (auth?.isAuthenticated && auth.syncFromServer) {
+      auth.syncFromServer().then(data => {
+        if (data) {
+          hydrateFromServer(data);
+          srs.hydrateFromServer(data);
+        }
+      });
+    }
+  }, [auth?.isAuthenticated]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const [animDir, setAnimDir] = useState('forward');
@@ -236,6 +248,7 @@ export default function Reader() {
           chapter={certData.chapter}
           score={certData.score}
           onClose={() => setCertData(null)}
+          isAuthenticated={auth?.isAuthenticated}
         />
       )}
     </div>

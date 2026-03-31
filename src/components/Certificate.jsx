@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from 'react'
+import { apiSaveCertificate, isLoggedIn } from '../api'
 
 const TODAY = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
 
@@ -142,7 +143,7 @@ function drawCertificate(canvas, name, chapter, score, code) {
   }
 }
 
-export default function Certificate({ chapter, score, onClose }) {
+export default function Certificate({ chapter, score, onClose, isAuthenticated }) {
   const [name, setName] = useState('')
   const [step, setStep] = useState('input')
   const canvasRef = useRef(null)
@@ -162,6 +163,18 @@ export default function Certificate({ chapter, score, onClose }) {
     a.download = `certificado-${chapter.id}-${validationCode}.png`
     a.href = canvasRef.current.toDataURL('image/png')
     a.click()
+
+    // Save to database
+    if (isLoggedIn()) {
+      apiSaveCertificate({
+        code: validationCode,
+        holderName: name.trim(),
+        targetType: chapter.id?.startsWith('ch') ? 'chapter' : 'world',
+        targetId: chapter.id,
+        targetTitle: chapter.icon ? `${chapter.icon} ${chapter.title}` : chapter.title,
+        score,
+      }).catch(() => {})
+    }
   }
 
   return (
