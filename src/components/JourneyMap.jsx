@@ -1,17 +1,24 @@
 import { useMemo, useEffect, useRef, useState } from 'react';
 import { CHAPTERS } from '../data/chapters';
 
-const COLS = 4;
-const CELL_W = 196;
-const CELL_H = 218;
-const NODE_SIZE = 90;
+const DESKTOP = { cols: 4, cellW: 196, cellH: 218, nodeSize: 90 };
+const MOBILE  = { cols: 2, cellW: 160, cellH: 190, nodeSize: 70 };
 
-const WORLDS = [
-  { id: 'forest', rows: [0],    label: 'MUNDO 1',  sub: 'FUNDAMENTOS',   emoji: '🌲' },
-  { id: 'desert', rows: [1],    label: 'MUNDO 2',  sub: 'CONFIGURAÇÃO',  emoji: '⚙' },
-  { id: 'ocean',  rows: [2],    label: 'MUNDO 3',  sub: 'AUTOMAÇÃO',     emoji: '🤖' },
-  { id: 'castle', rows: [3, 4], label: 'MUNDO 4',  sub: 'PRODUÇÃO',      emoji: '🏰' },
+// Chapters per world (index ranges in CHAPTERS array)
+const WORLD_DEFS = [
+  { id: 'forest', start: 0,  count: 4,  label: 'MUNDO 1', sub: 'FUNDAMENTOS',  emoji: '🌲' },
+  { id: 'desert', start: 4,  count: 4,  label: 'MUNDO 2', sub: 'CONFIGURAÇÃO', emoji: '⚙' },
+  { id: 'ocean',  start: 8,  count: 4,  label: 'MUNDO 3', sub: 'AUTOMAÇÃO',    emoji: '🤖' },
+  { id: 'castle', start: 12, count: 5,  label: 'MUNDO 4', sub: 'PRODUÇÃO',     emoji: '🏰' },
 ];
+
+function getWorldRows(def, cols) {
+  const firstRow = Math.floor(def.start / cols);
+  const lastRow = Math.floor((def.start + def.count - 1) / cols);
+  const rows = [];
+  for (let r = firstRow; r <= lastRow; r++) rows.push(r);
+  return rows;
+}
 
 function getStars(score) {
   if (!score || score < 70) return 0;
@@ -31,6 +38,15 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  const { cols: COLS, cellW: CELL_W, cellH: CELL_H, nodeSize: NODE_SIZE } = isMobile ? MOBILE : DESKTOP;
 
   const currentChId = useMemo(() => {
     return (
@@ -63,19 +79,20 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
         score: progress.quizResults[ch.id]?.score || 0,
       };
     });
-  }, [progress, currentChId]);
+  }, [progress, currentChId, COLS, CELL_W, CELL_H]);
 
   // World completion data
   const worldData = useMemo(() => {
-    return WORLDS.map(w => {
-      const worldChapters = CHAPTERS.filter((_, idx) => w.rows.includes(Math.floor(idx / COLS)));
+    return WORLD_DEFS.map(w => {
+      const rows = getWorldRows(w, COLS);
+      const worldChapters = CHAPTERS.slice(w.start, w.start + w.count);
       const allCompleted = worldChapters.length > 0 && worldChapters.every(ch => progress.passedChapters.includes(ch.id));
       const avgScore = allCompleted
         ? Math.round(worldChapters.reduce((sum, ch) => sum + (progress.quizResults[ch.id]?.score || 0), 0) / worldChapters.length)
         : 0;
-      return { ...w, chapters: worldChapters, allCompleted, avgScore };
+      return { ...w, rows, chapters: worldChapters, allCompleted, avgScore };
     });
-  }, [progress]);
+  }, [progress, COLS]);
 
   const numRows = Math.ceil(CHAPTERS.length / COLS);
   const mapW = COLS * CELL_W;
