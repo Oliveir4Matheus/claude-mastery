@@ -37,7 +37,7 @@ export default function Sidebar({ open, onClose, chapters, pages, currentPage, p
                 title={locked ? 'Complete o capítulo anterior para desbloquear' : ch.title}
               >
                 <span className="sidebar-num">{ch.num.replace('Capítulo ', '').replace('Apêndice', 'AP')}</span>
-                <span className="sidebar-item-title">{locked ? '???' : ch.title}</span>
+                <span className="sidebar-item-title">{ch.title}</span>
                 {passed
                   ? <span className="sidebar-status passed" title="Aprovado">✓</span>
                   : locked

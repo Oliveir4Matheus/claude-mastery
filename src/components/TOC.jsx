@@ -30,9 +30,9 @@ export default function TOC({ chapters, passedChapters, onChapterClick }) {
                 onClick={() => !locked && onChapterClick(ch.id)}
                 title={locked ? 'Complete o capítulo anterior para desbloquear' : ''}
               >
-                <span className="toc-ch-icon">{locked ? '🔒' : ch.icon}</span>
+                <span className="toc-ch-icon">{ch.icon}</span>
                 <span className="toc-ch-num">{ch.num}</span>
-                <span className="toc-ch-title">{locked ? '???' : ch.title}</span>
+                <span className="toc-ch-title">{ch.title}</span>
                 <span className={`toc-ch-status${passed ? ' passed' : ''}`}>
                   {passed ? '✓ Concluído' : locked ? '🔒' : '→ Iniciar'}
                 </span>
