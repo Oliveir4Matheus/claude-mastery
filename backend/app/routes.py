@@ -95,13 +95,23 @@ async def reset_chapter(chapter_id: str, user: User = Depends(get_current_user),
 # ── Certificates ──────────────────────────────────────
 @router.post("/certificates", response_model=CertificateResponse)
 async def create_certificate(req: CertificateCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    existing = await db.execute(select(Certificate).where(Certificate.code == req.code))
-    if existing.scalar_one_or_none():
-        raise HTTPException(409, "Certificado ja existe")
-    cert = Certificate(code=req.code, user_id=user.id, holder_name=req.holder_name,
-                       target_type=req.target_type, target_id=req.target_id,
-                       target_title=req.target_title, score=req.score)
-    db.add(cert)
+    # Check if user already has a certificate for this target — overwrite
+    result = await db.execute(
+        select(Certificate).where(Certificate.user_id == user.id, Certificate.target_id == req.target_id)
+    )
+    existing = result.scalar_one_or_none()
+    if existing:
+        existing.code = req.code
+        existing.holder_name = req.holder_name
+        existing.target_title = req.target_title
+        existing.score = req.score
+        existing.issued_at = datetime.now(timezone.utc)
+        cert = existing
+    else:
+        cert = Certificate(code=req.code, user_id=user.id, holder_name=req.holder_name,
+                           target_type=req.target_type, target_id=req.target_id,
+                           target_title=req.target_title, score=req.score)
+        db.add(cert)
     await db.commit()
     await db.refresh(cert)
     return CertificateResponse.model_validate(cert, from_attributes=True)
