@@ -248,7 +248,7 @@ export default function Reader({ auth }) {
           chapter={certData.chapter}
           score={certData.score}
           onClose={() => setCertData(null)}
-          isAuthenticated={auth?.isAuthenticated}
+          userName={auth?.user?.name}
         />
       )}
     </div>
