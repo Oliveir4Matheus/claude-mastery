@@ -7,4 +7,12 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 4000,
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+      },
+    },
+  },
 })

@@ -16,7 +16,9 @@ async function request(path, options = {}) {
     },
   });
   if (res.status === 401) { clearToken(); throw new Error('AUTH_EXPIRED'); }
-  const data = await res.json();
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch { throw new Error(`Resposta invalida do servidor (${res.status})`); }
   if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
   return data;
 }
