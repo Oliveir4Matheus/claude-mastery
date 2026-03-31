@@ -43,9 +43,17 @@ export default function Quiz({ chapter, existingResult, onResult, onNext, onRevi
   // Reset on chapter change; restore if already passed
   useEffect(() => {
     if (existingResult?.passed) {
-      const correct = {};
-      questions.forEach((q, i) => { correct[i] = q.correct; });
-      setAnswers(correct);
+      // Restore from saved question results if available
+      const restored = {};
+      if (existingResult.questionResults?.length) {
+        existingResult.questionResults.forEach((qr, i) => {
+          if (i < questions.length) restored[i] = qr.selectedAnswer ?? questions[i].correct;
+        });
+      } else {
+        // Fallback: show correct answers (no saved data)
+        questions.forEach((q, i) => { restored[i] = q.correct; });
+      }
+      setAnswers(restored);
       setConfidence({});
       setScore(existingResult.score);
       setPassed(true);
@@ -144,7 +152,7 @@ export default function Quiz({ chapter, existingResult, onResult, onNext, onRevi
             <div className="qrb-label">{passed ? '🎉 Aprovado!' : '📚 Não atingiu o mínimo'}</div>
             <div className="qrb-detail">
               {passed
-                ? `Você acertou ${correctCount} de ${questions.length} questões.`
+                ? `Você acertou ${Math.round(score * questions.length / 100)} de ${questions.length} questões.`
                 : `Acertou ${correctCount} de ${questions.length}. Precisa de ${minToPass} para avançar.`
               }
             </div>
