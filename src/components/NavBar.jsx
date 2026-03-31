@@ -1,7 +1,7 @@
 export default function NavBar({
   onPrev, onNext, canPrev, canNext, currentPage, totalPages, pageTitle,
-  onToggleSidebar, onToggleJourney, onToggleReview, onToggleAnalytics,
-  isQuizLocked, dueReviewCount, showReview, showAnalytics,
+  onToggleSidebar, onToggleJourney, onToggleReview, onToggleProfile,
+  isQuizLocked, dueReviewCount, showReview, showProfile, userName,
 }) {
   return (
     <nav className="reader-nav">
@@ -41,21 +41,21 @@ export default function NavBar({
         )}
       </button>
 
-      <button
-        className={`nav-toc-btn ${showAnalytics ? 'active' : ''}`}
-        onClick={onToggleAnalytics}
-        aria-label="Estatísticas"
-        title="Estatísticas de Aprendizado"
-      >
-        📊
-      </button>
-
       <button className="nav-toc-btn" onClick={onToggleJourney} aria-label="Mapa da Jornada">
         🗺 <span className="nav-toc-label">Mapa</span>
       </button>
 
       <button className="nav-toc-btn" onClick={onToggleSidebar} aria-label="Capítulos">
         ☰ <span className="nav-toc-label">Capítulos</span>
+      </button>
+
+      <button
+        className={`nav-toc-btn nav-profile-btn ${showProfile ? 'active' : ''}`}
+        onClick={onToggleProfile}
+        aria-label="Perfil"
+        title="Perfil e Estatísticas"
+      >
+        <span className="nav-profile-avatar">{userName?.charAt(0)?.toUpperCase() || '?'}</span>
       </button>
     </nav>
   );

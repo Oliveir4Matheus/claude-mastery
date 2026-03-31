@@ -13,7 +13,7 @@ import ProgressBar from './ProgressBar';
 import JourneyMap from './JourneyMap';
 import Certificate from './Certificate';
 import ReviewDashboard from './ReviewDashboard';
-import Analytics from './Analytics';
+import ProfilePage from './ProfilePage';
 
 function buildPages(chapters) {
   const pages = [
@@ -51,7 +51,7 @@ export default function Reader({ auth }) {
   const [animDir, setAnimDir] = useState('forward');
   const [certData, setCertData] = useState(null);
   const [showReview, setShowReview] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showProfile, setShowAnalytics] = useState(false);
 
   const page = PAGES[currentPage];
 
@@ -122,15 +122,17 @@ export default function Reader({ auth }) {
       );
     }
 
-    if (showAnalytics) {
+    if (showProfile) {
       return (
-        <Analytics
+        <ProfilePage
+          user={auth?.user}
           progress={progress}
           boxDistribution={srs.boxDistribution}
           streak={srs.streak}
           totalReviews={srs.totalReviews}
           allCards={srs.allCards}
-          onClose={() => setShowAnalytics(false)}
+          onClose={() => setShowProfile(false)}
+          onLogout={auth?.logout}
         />
       );
     }
@@ -192,26 +194,27 @@ export default function Reader({ auth }) {
     <div className="reader-wrap">
       <ProgressBar current={currentPage} total={PAGES.length} />
       <div className="reader-stage">
-        <div className={`reader-page active anim-${animDir}`} key={showReview ? 'review' : showAnalytics ? 'analytics' : currentPage}>
+        <div className={`reader-page active anim-${animDir}`} key={showReview ? 'review' : showProfile ? 'profile' : currentPage}>
           {renderPage()}
         </div>
       </div>
       <NavBar
         onPrev={goPrev}
         onNext={goNext}
-        canPrev={currentPage > 0 && !showReview && !showAnalytics}
-        canNext={canGoNext() && !showReview && !showAnalytics}
+        canPrev={currentPage > 0 && !showReview && !showProfile}
+        canNext={canGoNext() && !showReview && !showProfile}
         currentPage={currentPage}
         totalPages={PAGES.length}
-        pageTitle={showReview ? 'Revisao Espacada' : showAnalytics ? 'Estatisticas' : page.title}
+        pageTitle={showReview ? 'Revisao Espacada' : showProfile ? 'Meu Perfil' : page.title}
         onToggleSidebar={() => setSidebarOpen(true)}
         onToggleJourney={() => setJourneyOpen(true)}
         onToggleReview={() => setShowReview(r => !r)}
-        onToggleAnalytics={() => setShowAnalytics(a => !a)}
+        onToggleProfile={() => setShowProfile(p => !p)}
         isQuizLocked={isQuizLocked}
         dueReviewCount={srs.dueCards.length}
         showReview={showReview}
-        showAnalytics={showAnalytics}
+        showProfile={showProfile}
+        userName={auth?.user?.name}
       />
       <Sidebar
         open={sidebarOpen}
