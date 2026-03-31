@@ -51,7 +51,7 @@ export default function Reader({ auth }) {
   const [animDir, setAnimDir] = useState('forward');
   const [certData, setCertData] = useState(null);
   const [showReview, setShowReview] = useState(false);
-  const [showProfile, setShowAnalytics] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const page = PAGES[currentPage];
 
