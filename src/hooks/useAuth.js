@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiLogin, apiRegister, apiLogout, apiMe, apiSync, isLoggedIn } from '../api';
+import { apiLogin, apiRegister, apiLogout, apiMe, apiSync, hasToken, clearToken } from '../api';
 
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check token on mount
   useEffect(() => {
-    if (!isLoggedIn()) { setLoading(false); return; }
+    if (!hasToken()) { setLoading(false); return; }
     apiMe()
       .then(setUser)
-      .catch(() => { apiLogout(); setUser(null); })
+      .catch(() => { clearToken(); setUser(null); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -32,12 +31,8 @@ export function useAuth() {
   }, []);
 
   const syncFromServer = useCallback(async () => {
-    if (!isLoggedIn()) return null;
-    try {
-      return await apiSync();
-    } catch {
-      return null;
-    }
+    if (!hasToken()) return null;
+    try { return await apiSync(); } catch { return null; }
   }, []);
 
   return { user, loading, login, register, logout, syncFromServer, isAuthenticated: !!user };

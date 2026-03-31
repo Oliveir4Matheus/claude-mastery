@@ -1,58 +1,46 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { apiInitSRS, apiReviewCard, isLoggedIn } from '../api';
+import { useState, useCallback, useMemo } from 'react';
+import { apiInitSRS, apiReviewCard } from '../api';
 
-const SRS_KEY = 'claude-mastery-srs-v1';
 const INTERVALS = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 };
-
 function today() { return new Date().toISOString().slice(0, 10); }
 function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); }
 function daysBetween(a, b) { return Math.floor((new Date(b) - new Date(a)) / 86400000); }
 
 const defaultSRS = { cards: {}, streak: { current: 0, lastReviewDate: null, longest: 0 }, totalReviews: 0 };
 
-function loadSRS() { try { const r = localStorage.getItem(SRS_KEY); return r ? { ...defaultSRS, ...JSON.parse(r) } : defaultSRS; } catch { return defaultSRS; } }
-function saveSRS(d) { try { localStorage.setItem(SRS_KEY, JSON.stringify(d)); } catch {} }
-
 export function useSpacedRepetition() {
-  const [srs, setSRS] = useState(loadSRS);
-  useEffect(() => { saveSRS(srs); }, [srs]);
+  const [srs, setSRS] = useState(defaultSRS);
 
-  // Hydrate from server
-  const hydrateFromServer = useCallback((serverData) => {
-    if (!serverData) return;
-    const { srsCards, streak: serverStreak } = serverData;
-    setSRS(s => {
-      const cards = { ...s.cards };
-      srsCards?.forEach(c => {
-        const key = c.card_key;
-        const existing = cards[key];
-        // Server wins if more reviews or doesn't exist locally
-        if (!existing || c.review_count > (existing.reviewCount || 0)) {
-          cards[key] = {
-            chapterId: c.chapter_id, questionIndex: c.question_index,
-            box: c.box, nextReview: c.next_review?.slice(0, 10),
-            lastReview: c.last_review?.slice(0, 10), reviewCount: c.review_count, correctStreak: c.correct_streak,
-          };
-        }
-      });
-      const streak = serverStreak?.current_streak > s.streak.current
-        ? { current: serverStreak.current_streak, longest: serverStreak.longest_streak, lastReviewDate: serverStreak.last_review_date?.slice(0, 10) }
-        : s.streak;
-      return { ...s, cards, streak, totalReviews: Math.max(s.totalReviews, serverStreak?.total_reviews || 0) };
+  const hydrateFromServer = useCallback((data) => {
+    if (!data) return;
+    const cards = {};
+    data.srs_cards?.forEach(c => {
+      cards[c.card_key] = {
+        chapterId: c.chapter_id, questionIndex: c.question_index,
+        box: c.box, nextReview: c.next_review?.slice?.(0, 10) || c.next_review,
+        lastReview: c.last_review?.slice?.(0, 10) || c.last_review,
+        reviewCount: c.review_count, correctStreak: c.correct_streak,
+      };
+    });
+    const s = data.streak || {};
+    setSRS({
+      cards,
+      streak: { current: s.current_streak || 0, longest: s.longest_streak || 0, lastReviewDate: s.last_review_date?.slice?.(0, 10) || s.last_review_date },
+      totalReviews: s.total_reviews || 0,
     });
   }, []);
 
   const initChapterCards = useCallback((chapterId, questionCount) => {
+    const t = today(), next = addDays(t, 1);
     setSRS(s => {
       const newCards = { ...s.cards };
-      const t = today(), next = addDays(t, 1);
       for (let i = 0; i < questionCount; i++) {
         const key = `${chapterId}-q${i}`;
         if (!newCards[key]) newCards[key] = { chapterId, questionIndex: i, box: 1, nextReview: next, lastReview: t, reviewCount: 0, correctStreak: 0 };
       }
       return { ...s, cards: newCards };
     });
-    if (isLoggedIn()) apiInitSRS(chapterId, questionCount).catch(() => {});
+    apiInitSRS(chapterId, questionCount).catch(() => {});
   }, []);
 
   const removeChapterCards = useCallback((chapterId) => {
@@ -75,7 +63,7 @@ export function useSpacedRepetition() {
       }
       return { ...s, cards: { ...s.cards, [cardId]: updatedCard }, streak, totalReviews: s.totalReviews + 1 };
     });
-    if (isLoggedIn()) apiReviewCard(cardId, correct).catch(() => {});
+    apiReviewCard(cardId, correct).catch(() => {});
   }, []);
 
   const dueCards = useMemo(() => {
@@ -95,8 +83,7 @@ export function useSpacedRepetition() {
     const t = today();
     const ch = Object.values(srs.cards).filter(c => c.chapterId === chapterId);
     if (!ch.length) return 0;
-    const avg = ch.reduce((s, c) => s + Math.max(0, daysBetween(c.nextReview, t)), 0) / ch.length;
-    return Math.min(1, avg / 14);
+    return Math.min(1, ch.reduce((s, c) => s + Math.max(0, daysBetween(c.nextReview, t)), 0) / ch.length / 14);
   }, [srs.cards]);
 
   return { srs, dueCards, allCards, boxDistribution, streak: srs.streak, totalReviews: srs.totalReviews, initChapterCards, removeChapterCards, processReview, getChapterDecay, hydrateFromServer };

@@ -1586,7 +1586,10 @@ li { margin-bottom:4px; }
   color: var(--tx3); font-size: 12px;
   cursor: pointer; transition: color 0.2s;
 }
-.auth-skip:hover { color: var(--tx2); }
+.auth-hint {
+  font-size: 11px; color: var(--tx3);
+  margin-top: 16px; line-height: 1.5;
+}
 
 /* ── Mobile responsive additions ── */
 @media (max-width: 600px) {

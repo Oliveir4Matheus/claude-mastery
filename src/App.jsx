@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import AuthScreen from './components/AuthScreen';
 import Reader from './components/Reader';
 
 export default function App() {
   const auth = useAuth();
-  const [skipped, setSkipped] = useState(() => localStorage.getItem('claude-mastery-auth-skip') === '1');
 
   if (auth.loading) {
     return (
@@ -15,15 +13,8 @@ export default function App() {
     );
   }
 
-  // Show auth screen if not logged in and hasn't skipped
-  if (!auth.isAuthenticated && !skipped) {
-    return (
-      <AuthScreen
-        onLogin={auth.login}
-        onRegister={auth.register}
-        onSkip={() => { localStorage.setItem('claude-mastery-auth-skip', '1'); setSkipped(true); }}
-      />
-    );
+  if (!auth.isAuthenticated) {
+    return <AuthScreen onLogin={auth.login} onRegister={auth.register} />;
   }
 
   return <Reader auth={auth} />;

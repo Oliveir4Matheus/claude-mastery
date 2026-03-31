@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from 'react'
-import { apiSaveCertificate, isLoggedIn } from '../api'
+import { apiSaveCertificate } from '../api'
 
 const TODAY = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
 
@@ -165,16 +165,14 @@ export default function Certificate({ chapter, score, onClose, isAuthenticated }
     a.click()
 
     // Save to database
-    if (isLoggedIn()) {
-      apiSaveCertificate({
+    apiSaveCertificate({
         code: validationCode,
         holderName: name.trim(),
         targetType: chapter.id?.startsWith('ch') ? 'chapter' : 'world',
         targetId: chapter.id,
         targetTitle: chapter.icon ? `${chapter.icon} ${chapter.title}` : chapter.title,
         score,
-      }).catch(() => {})
-    }
+    }).catch(() => {})
   }
 
   return (

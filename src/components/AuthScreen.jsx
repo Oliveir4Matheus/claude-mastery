@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function AuthScreen({ onLogin, onRegister, onSkip }) {
+export default function AuthScreen({ onLogin, onRegister }) {
   const [mode, setMode] = useState('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -77,9 +77,7 @@ export default function AuthScreen({ onLogin, onRegister, onSkip }) {
           {mode === 'login' ? 'Nao tem conta? Criar conta' : 'Ja tem conta? Entrar'}
         </button>
 
-        <button className="auth-skip" onClick={onSkip}>
-          Continuar sem conta (dados locais)
-        </button>
+        <p className="auth-hint">Seu progresso, certificados e revisoes ficam salvos na sua conta</p>
       </div>
     </div>
   );
