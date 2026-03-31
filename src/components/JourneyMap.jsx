@@ -31,6 +31,7 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
   const scrollRef = useRef(null);
   const heroRef = useRef(null);
   const [popupNode, setPopupNode] = useState(null);
+  const [expandedWorld, setExpandedWorld] = useState(null);
 
   const currentChId = useMemo(() => {
     return (
@@ -161,31 +162,70 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                   width: mapW,
                 }}
               >
-                <div className="jm-zone-header">
+                <div className="jm-zone-header" onClick={e => e.stopPropagation()}>
                   <span className="jm-zone-tag">{w.emoji} {w.label} — {w.sub}</span>
-                  {w.allCompleted && (
-                    <div className="jm-zone-actions" onClick={e => e.stopPropagation()}>
+                  <div className="jm-zone-right">
+                    {w.allCompleted && (
                       <span className="jm-zone-done-badge">✓ {w.avgScore}%</span>
-                      <button
-                        className="jm-zone-btn"
-                        onClick={() => onGenerateCertificate(
-                          { id: w.id, icon: w.emoji, title: `${w.label} — ${w.sub}` },
-                          w.avgScore
-                        )}
-                      >
-                        🏆 Certificado
-                      </button>
-                      <button
-                        className="jm-zone-btn jm-zone-btn-reset"
-                        onClick={() => {
-                          w.chapters.forEach(ch => onResetChapter(ch.id));
-                        }}
-                      >
-                        ↺ Refazer
-                      </button>
-                    </div>
-                  )}
+                    )}
+                    <button
+                      className="jm-zone-btn jm-zone-btn-expand"
+                      onClick={() => setExpandedWorld(prev => prev === w.id ? null : w.id)}
+                    >
+                      {expandedWorld === w.id ? '▲' : '▼'} Modulos
+                    </button>
+                    {w.allCompleted && (
+                      <>
+                        <button
+                          className="jm-zone-btn"
+                          onClick={() => onGenerateCertificate(
+                            { id: w.id, icon: w.emoji, title: `${w.label} — ${w.sub}` },
+                            w.avgScore
+                          )}
+                        >
+                          🏆 Certificado
+                        </button>
+                        <button
+                          className="jm-zone-btn jm-zone-btn-reset"
+                          onClick={() => { w.chapters.forEach(ch => onResetChapter(ch.id)); }}
+                        >
+                          ↺ Refazer
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
+                {expandedWorld === w.id && (
+                  <div className="jm-zone-modules" onClick={e => e.stopPropagation()}>
+                    {w.chapters.map(ch => {
+                      const passed = progress.passedChapters.includes(ch.id);
+                      const chScore = progress.quizResults[ch.id]?.score;
+                      return (
+                        <div key={ch.id} className={`jm-mod-item ${passed ? 'done' : 'pending'}`}>
+                          <span className="jm-mod-icon">{ch.icon}</span>
+                          <span className="jm-mod-title">{ch.title}</span>
+                          {passed && <span className="jm-mod-score">{chScore}%</span>}
+                          <div className="jm-mod-actions">
+                            <button
+                              className="jm-mod-btn"
+                              onClick={() => { onSelectChapter(ch.id); onClose(); }}
+                            >
+                              {passed ? '📖 Revisar' : '→ Ir'}
+                            </button>
+                            {passed && (
+                              <button
+                                className="jm-mod-btn jm-mod-btn-cert"
+                                onClick={() => onGenerateCertificate(ch, chScore)}
+                              >
+                                🏆
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))}
 

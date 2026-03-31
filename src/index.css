@@ -552,7 +552,48 @@ li { margin-bottom:4px; }
   white-space: nowrap;
 }
 .jm-zone-btn:hover { border-color: var(--co); color: var(--co); background: rgba(232,112,64,0.12); }
+.jm-zone-btn-expand { border-color: rgba(255,255,255,0.2); }
 .jm-zone-btn-reset:hover { border-color: var(--red); color: var(--red); background: rgba(232,93,93,0.12); }
+.jm-zone-right { display: flex; align-items: center; gap: 6px; margin-left: auto; pointer-events: all; }
+
+/* Module list inside zone */
+.jm-zone-modules {
+  position: absolute; top: 26px; left: 8px; right: 8px;
+  display: flex; flex-direction: column; gap: 3px;
+  pointer-events: all; z-index: 15;
+  background: rgba(15,15,20,0.95);
+  border: 1px solid var(--brd);
+  border-radius: 6px;
+  padding: 6px;
+  backdrop-filter: blur(8px);
+}
+.jm-mod-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px; border-radius: 4px;
+  font-size: 11px; color: var(--tx2);
+  transition: background 0.15s;
+}
+.jm-mod-item.done { color: var(--tx); }
+.jm-mod-item:hover { background: rgba(255,255,255,0.04); }
+.jm-mod-icon { font-size: 13px; flex-shrink: 0; }
+.jm-mod-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jm-mod-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--grn);
+  flex-shrink: 0;
+}
+.jm-mod-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.jm-mod-btn {
+  padding: 2px 7px; border-radius: 3px;
+  border: 1px solid var(--brd);
+  background: transparent; color: var(--tx3);
+  font-size: 9px; cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+.jm-mod-btn:hover { border-color: var(--co); color: var(--co); }
+.jm-mod-btn-cert { padding: 2px 5px; }
+.jm-mod-btn-cert:hover { border-color: var(--co-l); color: var(--co-l); }
 
 /* SVG dos paths */
 .jm-svg { position: absolute; top: 0; left: 0; pointer-events: none; }
