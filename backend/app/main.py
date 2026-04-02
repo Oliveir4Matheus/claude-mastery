@@ -5,7 +5,10 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from .database import Base
 from .routes import router, limiter
-from .config import CORS_ORIGIN
+from .config import CORS_ORIGIN, JWT_SECRET
+
+if not JWT_SECRET:
+    raise RuntimeError("JWT_SECRET environment variable is required and must be set")
 
 app = FastAPI(title="Claude Code Mastery API", version="1.0.0")
 app.state.limiter = limiter
