@@ -1,6 +1,10 @@
 import asyncio
 import os
+import sys
 from logging.config import fileConfig
+
+# Garante que o pacote 'app' seja encontrado independente do CWD
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
