@@ -34,7 +34,15 @@ export default function App() {
   if (auth.loading) {
     return (
       <div className="auth-screen">
-        <div className="auth-card"><div className="auth-logo">⟳</div><p className="auth-subtitle">Carregando...</p></div>
+        <div className="auth-card">
+          <div className="auth-brand">
+            <div className="auth-logo">⟳</div>
+            <h1 className="auth-title">Claude Code Mastery</h1>
+          </div>
+          <div className="auth-body" style={{textAlign:'center'}}>
+            <p className="auth-subtitle">Carregando...</p>
+          </div>
+        </div>
       </div>
     );
   }
