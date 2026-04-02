@@ -59,9 +59,14 @@ class CertificateResponse(BaseModel):
     score: int
     issued_at: datetime
 
+class PublicCertificateResponse(BaseModel):
+    holder_name: str
+    target_title: str
+    issued_at: datetime
+
 class ValidateResponse(BaseModel):
     valid: bool
-    certificate: CertificateResponse | None = None
+    certificate: PublicCertificateResponse | None = None
 
 
 # ── SRS ──

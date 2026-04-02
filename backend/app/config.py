@@ -7,5 +7,5 @@ if not JWT_SECRET:
     raise RuntimeError("JWT_SECRET environment variable is required and must be set")
 
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRE_DAYS = 30
+JWT_EXPIRE_DAYS = 7
 CORS_ORIGIN = os.getenv("CORS_ORIGIN", "")

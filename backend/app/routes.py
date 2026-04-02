@@ -1,5 +1,8 @@
+import re
 from datetime import datetime, date, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from .database import get_db
@@ -8,7 +11,7 @@ from .auth import get_current_user, hash_password, verify_password, create_token
 from .schemas import (
     RegisterRequest, LoginRequest, AuthResponse, UserResponse,
     ProgressUpdate, ProgressResponse,
-    CertificateCreate, CertificateResponse, ValidateResponse,
+    CertificateCreate, CertificateResponse, PublicCertificateResponse, ValidateResponse,
     SRSInitRequest, SRSReviewRequest, SRSCardResponse, StreakResponse,
     ChallengeToggle, ChallengeResponse,
     PageUpdate, SyncResponse,
@@ -16,13 +19,26 @@ from .schemas import (
 
 router = APIRouter()
 INTERVALS = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
+limiter = Limiter(key_func=get_remote_address)
+
+_CHAPTER_RE = re.compile(r'^[a-zA-Z0-9_-]{1,20}$')
+_CARD_RE = re.compile(r'^[a-zA-Z0-9_-]{1,30}$')
+_CHALLENGE_RE = re.compile(r'^[a-zA-Z0-9_-]{1,30}$')
+
+def _validate_password(password: str) -> None:
+    if len(password) < 8:
+        raise HTTPException(400, "Senha deve ter pelo menos 8 caracteres")
+    if not re.search(r'[A-Za-z]', password):
+        raise HTTPException(400, "Senha deve conter ao menos uma letra")
+    if not re.search(r'[0-9]', password):
+        raise HTTPException(400, "Senha deve conter ao menos um número")
 
 
 # ── Auth ──────────────────────────────────────────────
 @router.post("/auth/register", response_model=AuthResponse)
-async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    if len(req.password) < 6:
-        raise HTTPException(400, "Senha deve ter pelo menos 6 caracteres")
+@limiter.limit("5/hour")
+async def register(request: Request, req: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    _validate_password(req.password)
     existing = await db.execute(select(User).where(User.email == req.email.lower()))
     if existing.scalar_one_or_none():
         raise HTTPException(409, "Email ja cadastrado")
@@ -34,7 +50,8 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/auth/login", response_model=AuthResponse)
-async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def login(request: Request, req: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == req.email.lower()))
     user = result.scalar_one_or_none()
     if not user or not verify_password(req.password, user.password_hash):
@@ -64,6 +81,8 @@ async def get_progress(user: User = Depends(get_current_user), db: AsyncSession 
 
 @router.put("/progress/{chapter_id}", response_model=ProgressResponse)
 async def save_progress(chapter_id: str, req: ProgressUpdate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not _CHAPTER_RE.match(chapter_id):
+        raise HTTPException(400, "chapter_id invalido")
     result = await db.execute(select(Progress).where(Progress.user_id == user.id, Progress.chapter_id == chapter_id))
     row = result.scalar_one_or_none()
     now = datetime.now(timezone.utc)
@@ -86,6 +105,8 @@ async def save_progress(chapter_id: str, req: ProgressUpdate, user: User = Depen
 
 @router.delete("/progress/{chapter_id}")
 async def reset_chapter(chapter_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not _CHAPTER_RE.match(chapter_id):
+        raise HTTPException(400, "chapter_id invalido")
     await db.execute(delete(Progress).where(Progress.user_id == user.id, Progress.chapter_id == chapter_id))
     await db.execute(delete(SRSCard).where(SRSCard.user_id == user.id, SRSCard.chapter_id == chapter_id))
     await db.commit()
@@ -124,12 +145,20 @@ async def list_certificates(user: User = Depends(get_current_user), db: AsyncSes
 
 
 @router.get("/validate/{code}", response_model=ValidateResponse)
-async def validate_certificate(code: str, db: AsyncSession = Depends(get_db)):
+@limiter.limit("20/minute")
+async def validate_certificate(request: Request, code: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Certificate).where(Certificate.code == code))
     cert = result.scalar_one_or_none()
     if not cert:
         return ValidateResponse(valid=False)
-    return ValidateResponse(valid=True, certificate=CertificateResponse.model_validate(cert, from_attributes=True))
+    return ValidateResponse(
+        valid=True,
+        certificate=PublicCertificateResponse(
+            holder_name=cert.holder_name,
+            target_title=cert.target_title,
+            issued_at=cert.issued_at,
+        ),
+    )
 
 
 # ── SRS ───────────────────────────────────────────────
@@ -149,6 +178,8 @@ async def get_all_cards(user: User = Depends(get_current_user), db: AsyncSession
 
 @router.post("/srs/init/{chapter_id}")
 async def init_srs(chapter_id: str, req: SRSInitRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not _CHAPTER_RE.match(chapter_id):
+        raise HTTPException(400, "chapter_id invalido")
     tomorrow = date.today() + timedelta(days=1)
     for i in range(req.question_count):
         key = f"{chapter_id}-q{i}"
@@ -162,6 +193,8 @@ async def init_srs(chapter_id: str, req: SRSInitRequest, user: User = Depends(ge
 
 @router.put("/srs/review/{card_key}")
 async def review_card(card_key: str, req: SRSReviewRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not _CARD_RE.match(card_key):
+        raise HTTPException(400, "card_key invalido")
     result = await db.execute(select(SRSCard).where(SRSCard.user_id == user.id, SRSCard.card_key == card_key))
     card = result.scalar_one_or_none()
     if not card:
@@ -213,6 +246,8 @@ async def get_challenges(user: User = Depends(get_current_user), db: AsyncSessio
 
 @router.put("/challenges/{challenge_id}")
 async def toggle_challenge(challenge_id: str, req: ChallengeToggle, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not _CHALLENGE_RE.match(challenge_id):
+        raise HTTPException(400, "challenge_id invalido")
     result = await db.execute(select(Challenge).where(Challenge.user_id == user.id, Challenge.challenge_id == challenge_id))
     ch = result.scalar_one_or_none()
     now = datetime.now(timezone.utc)
