@@ -1596,7 +1596,7 @@ li { margin-bottom:4px; }
 .pf-section-empty { font-size: 13px; color: var(--tx3); font-style: italic; }
 
 /* Certificate grid */
-.pf-certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.pf-certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 10px; }
 .pf-cert-card {
   display: block; text-decoration: none;
   background: var(--bg2); border: 1px solid var(--brd);
@@ -1771,4 +1771,20 @@ li { margin-bottom:4px; }
   .quiz-confidence { flex-direction: column; align-items: flex-start; }
   .rc-self-rate { flex-wrap: wrap; }
   .ml-challenges { max-width: 100%; }
+
+  /* Certificate modal — padding lateral reduzido */
+  .cert-modal { padding: 24px 16px 20px; }
+
+  /* Validate page — card de erro */
+  .vp-invalid { padding: 32px 16px; }
+
+  /* Auth card — telas muito pequenas */
+  .auth-card { padding: 28px 16px; }
+
+  /* Analytics e Profile — padding reduzido */
+  .analytics-page { padding: 20px 16px; }
+  .profile-page { padding: 20px 16px; }
+
+  /* Tables dentro de capítulos — scroll horizontal */
+  .ch table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
