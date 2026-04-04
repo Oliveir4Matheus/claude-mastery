@@ -26,12 +26,14 @@ _CARD_RE = re.compile(r'^[a-zA-Z0-9_-]{1,30}$')
 _CHALLENGE_RE = re.compile(r'^[a-zA-Z0-9_-]{1,30}$')
 
 def _validate_password(password: str) -> None:
-    if len(password) < 8:
-        raise HTTPException(400, "Senha deve ter pelo menos 8 caracteres")
+    if len(password) < 12:
+        raise HTTPException(400, "Senha deve ter pelo menos 12 caracteres")
     if not re.search(r'[A-Za-z]', password):
         raise HTTPException(400, "Senha deve conter ao menos uma letra")
     if not re.search(r'[0-9]', password):
         raise HTTPException(400, "Senha deve conter ao menos um número")
+    if not re.search(r'[!@#$%^&*()_+\-=\[\]{};:\'",.<>?/\\|`~]', password):
+        raise HTTPException(400, "Senha deve conter ao menos um caractere especial")
 
 
 # ── Auth ──────────────────────────────────────────────
@@ -50,7 +52,7 @@ async def register(request: Request, req: RegisterRequest, db: AsyncSession = De
 
 
 @router.post("/auth/login", response_model=AuthResponse)
-@limiter.limit("10/minute")
+@limiter.limit("5/minute")
 async def login(request: Request, req: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == req.email.lower()))
     user = result.scalar_one_or_none()
@@ -83,6 +85,9 @@ async def get_progress(user: User = Depends(get_current_user), db: AsyncSession 
 async def save_progress(chapter_id: str, req: ProgressUpdate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if not _CHAPTER_RE.match(chapter_id):
         raise HTTPException(400, "chapter_id invalido")
+    # Validate score range to prevent data manipulation
+    if not (0 <= req.score <= 100):
+        raise HTTPException(400, "Score deve estar entre 0 e 100")
     result = await db.execute(select(Progress).where(Progress.user_id == user.id, Progress.chapter_id == chapter_id))
     row = result.scalar_one_or_none()
     now = datetime.now(timezone.utc)
@@ -177,9 +182,13 @@ async def get_all_cards(user: User = Depends(get_current_user), db: AsyncSession
 
 
 @router.post("/srs/init/{chapter_id}")
-async def init_srs(chapter_id: str, req: SRSInitRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def init_srs(request: Request, chapter_id: str, req: SRSInitRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if not _CHAPTER_RE.match(chapter_id):
         raise HTTPException(400, "chapter_id invalido")
+    # Prevent DoS: limit question count
+    if not (1 <= req.question_count <= 500):
+        raise HTTPException(400, "question_count deve estar entre 1 e 500")
     tomorrow = date.today() + timedelta(days=1)
     for i in range(req.question_count):
         key = f"{chapter_id}-q{i}"
@@ -192,7 +201,8 @@ async def init_srs(chapter_id: str, req: SRSInitRequest, user: User = Depends(ge
 
 
 @router.put("/srs/review/{card_key}")
-async def review_card(card_key: str, req: SRSReviewRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit("30/minute")
+async def review_card(request: Request, card_key: str, req: SRSReviewRequest, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if not _CARD_RE.match(card_key):
         raise HTTPException(400, "card_key invalido")
     result = await db.execute(select(SRSCard).where(SRSCard.user_id == user.id, SRSCard.card_key == card_key))
@@ -245,7 +255,8 @@ async def get_challenges(user: User = Depends(get_current_user), db: AsyncSessio
 
 
 @router.put("/challenges/{challenge_id}")
-async def toggle_challenge(challenge_id: str, req: ChallengeToggle, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit("20/minute")
+async def toggle_challenge(request: Request, challenge_id: str, req: ChallengeToggle, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if not _CHALLENGE_RE.match(challenge_id):
         raise HTTPException(400, "challenge_id invalido")
     result = await db.execute(select(Challenge).where(Challenge.user_id == user.id, Challenge.challenge_id == challenge_id))

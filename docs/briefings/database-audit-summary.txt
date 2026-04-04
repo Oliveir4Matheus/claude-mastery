@@ -1,0 +1,110 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    DATABASE AUDIT SUMMARY — claude-mastery                   ║
+║                           PostgreSQL 16 + SQLAlchemy 2                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+TABLES & RELATIONSHIPS
+─────────────────────────────────────────────────────────────────────────────
+  7 tabelas
+  1 hub (Users) → 6 satellites (Progress, Certificates, SRS, Challenge, Streak)
+  Todas com CASCADE ON DELETE (seguro para deletar usuários)
+  Composite UQs bem implementados
+
+CRITICAL ISSUES (Fazer AGORA)
+─────────────────────────────────────────────────────────────────────────────
+  [🔴] Sem updated_at em TODAS as tabelas → auditoria impossível
+  [🔴] Sem deleted_at (soft delete) → dados irrecuperáveis
+  [🔴] Índices faltando em user_id → queries lentas em listagens
+  [🔴] JWT_SECRET pode ser vazio → tokens inseguros
+  
+  Impacto: Auditoria legal, performance, segurança crítica
+
+STANDARDS & NAMING
+─────────────────────────────────────────────────────────────────────────────
+  ✓ Snake_case consistente
+  ✓ SERIAL PKs uniformes
+  ✓ Email com índice único
+  ⚠️  current_page em Users é ambíguo (page absoluta vs chapter_id?)
+  ⚠️  Certificate.target_title denormalizado (acopla mudanças)
+  ⚠️  SRSCard.card_key requer parsing (melhor: composite UK)
+
+PERFORMANCE GAPS
+─────────────────────────────────────────────────────────────────────────────
+  MISSING INDEXES:
+    • progress(user_id) — 6 queries sofrem
+    • srs_cards(user_id) — 5 queries sofrem
+    • certificates(user_id) — 3 queries sofrem
+    • challenges(user_id) — 2 queries sofrem
+    • review_streaks(user_id) — 4 queries sofrem
+    • srs_cards(next_review) — busca de cartões vencidos é O(n)
+
+  QUERY OPTIMIZATION:
+    • /sync endpoint faz 5 queries separadas → eager-load em 1 query
+    
+  Impacto: 10-100x slowdown em listagens por usuário
+
+INTEGRITY & CONSTRAINTS
+─────────────────────────────────────────────────────────────────────────────
+  ✓ Foreign keys com CASCADE
+  ✓ UNIQUE constraints onde necessário
+  ✓ NOT NULL bem colocado
+  ✗ Sem CHECK constraints em:
+    • srs_cards.box (deve ser 1-5)
+    • progress.score / calibration_score (deve ser 0-100)
+    • certificate.target_type (enum: "chapter", "course")
+
+SECURITY
+─────────────────────────────────────────────────────────────────────────────
+  ✓ Senhas em bcrypt (60 chars, 10 rounds)
+  ✓ Sem dados sensíveis em plain text
+  ⚠️  PostgreSQL user "mastery" com acesso completo (criar user restrito em prod)
+  ⚠️  JWT_SECRET pode ser "" (fix em config.py)
+
+MIGRATIONS
+─────────────────────────────────────────────────────────────────────────────
+  • 1 migration inicial (678c718b2eb4) — criação de schema
+  • Upgrade e downgrade funcionam (reversível)
+  ⚠️  Downgrade destrói dados — adicionar warning
+
+MISSING TIMESTAMPS
+─────────────────────────────────────────────────────────────────────────────
+  Faltam em (afeta auditoria):
+    ❌ Users: sem updated_at
+    ❌ Progress: sem created_at, updated_at
+    ❌ Certificates: sem updated_at
+    ❌ SRSCard: sem created_at, updated_at
+    ❌ Challenge: sem created_at, updated_at
+    ❌ ReviewStreak: sem created_at, updated_at
+
+SCORES
+─────────────────────────────────────────────────────────────────────────────
+  Modelagem ........... 7/10 ⚠️  (bom, mas faltam timestamps)
+  Padronização ....... 7/10 ⚠️  (consistente, mas nomes ambíguos)
+  Performance ........ 6/10 ⚠️  (CRÍTICO — índices faltando)
+  Integridade ........ 8/10 ✓ (FKs e UQs bons, sem CHECKs)
+  Segurança .......... 7/10 ⚠️  (bcrypt OK, mas JWT e perms precisam)
+
+ROADMAP
+─────────────────────────────────────────────────────────────────────────────
+  PRIORITY 1 (ASAP — 2-3 horas):
+    1. Adicionar updated_at em todas as tabelas (migration + trigger)
+    2. Implementar soft delete (deleted_at) em todas as tabelas
+    3. Criar 5 índices em user_id (progress, srs_cards, certificates, challenges, review_streaks)
+    4. Validar JWT_SECRET em startup do FastAPI
+
+  PRIORITY 2 (1-2 semanas):
+    5. Adicionar created_at em Progress e Challenge
+    6. Índice em srs_cards(next_review)
+    7. Eager-load em /sync endpoint (selectinload)
+    8. CHECK constraints em box, score, target_type
+
+  PRIORITY 3 (Nice-to-have):
+    9. Refatorar SRSCard.card_key → composite UK
+   10. Documentar ou normalizar current_page
+   11. Sincronizar Certificate.target_title com trigger
+   12. User PostgreSQL restrito em produção
+
+DETAILED REPORT
+─────────────────────────────────────────────────────────────────────────────
+  See: /docs/briefings/database-audit.md (seções 1-10, 75 recomendações)
+

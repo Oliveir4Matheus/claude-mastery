@@ -1,12 +1,12 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, date
 
 
 # ── Auth ──
 class RegisterRequest(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=120)
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=12)
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -26,9 +26,9 @@ class AuthResponse(BaseModel):
 
 # ── Progress ──
 class ProgressUpdate(BaseModel):
-    score: int
+    score: int = Field(..., ge=0, le=100)
     passed: bool
-    calibration_score: int | None = None
+    calibration_score: int | None = Field(None, ge=0, le=100)
     question_results: list | None = None
 
 class ProgressResponse(BaseModel):
@@ -43,12 +43,12 @@ class ProgressResponse(BaseModel):
 
 # ── Certificate ──
 class CertificateCreate(BaseModel):
-    code: str
-    holder_name: str
-    target_type: str = "chapter"
-    target_id: str
-    target_title: str
-    score: int
+    code: str = Field(..., min_length=1, max_length=14)
+    holder_name: str = Field(..., min_length=1, max_length=120)
+    target_type: str = Field("chapter", min_length=1, max_length=10)
+    target_id: str = Field(..., min_length=1, max_length=20)
+    target_title: str = Field(..., min_length=1, max_length=200)
+    score: int = Field(..., ge=0, le=100)
 
 class CertificateResponse(BaseModel):
     code: str
@@ -71,7 +71,7 @@ class ValidateResponse(BaseModel):
 
 # ── SRS ──
 class SRSInitRequest(BaseModel):
-    question_count: int
+    question_count: int = Field(..., ge=1, le=500)
 
 class SRSReviewRequest(BaseModel):
     correct: bool
@@ -105,7 +105,7 @@ class ChallengeResponse(BaseModel):
 
 # ── Current Page ──
 class PageUpdate(BaseModel):
-    page: int
+    page: int = Field(..., ge=0)
 
 
 # ── Sync ──

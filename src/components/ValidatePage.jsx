@@ -107,10 +107,29 @@ function drawCertificate(canvas, name, title, score, code, issuedAt) {
   }
 }
 
+// Validate certificate code format (14 chars alphanumeric)
+function validateCertCode(code) {
+  return /^[A-Z0-9]{14}$/.test(code);
+}
+
 export default function ValidatePage({ code }) {
   const [status, setStatus] = useState('loading')
   const [cert, setCert] = useState(null)
   const canvasRef = useRef(null)
+
+  // Validate code format before making request
+  if (!validateCertCode(code)) {
+    return (
+      <div className="vp-wrap">
+        <div className="vp-invalid">
+          <div className="vp-invalid-icon">✗</div>
+          <h1>Codigo invalido</h1>
+          <p>O codigo do certificado nao eh valido.</p>
+          <a href="/" className="vp-back-btn">Voltar ao curso</a>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     apiValidateCertificate(code)

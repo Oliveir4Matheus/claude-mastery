@@ -7,6 +7,11 @@ export function hasToken() { return !!getToken(); }
 
 async function request(path, options = {}) {
   const token = getToken();
+  // Validate token format to prevent injection
+  if (token && !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) {
+    clearToken();
+    throw new Error('Token invalido');
+  }
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers: {
@@ -14,6 +19,7 @@ async function request(path, options = {}) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
+    credentials: 'same-origin',
   });
   if (res.status === 401) { clearToken(); throw new Error('AUTH_EXPIRED'); }
   const text = await res.text();

@@ -13,10 +13,27 @@ export default function AuthScreen({ onLogin, onRegister }) {
     setError('');
     setLoading(true);
     try {
+      // Sanitize and validate inputs
+      const trimmedEmail = email.trim().toLowerCase();
+      const trimmedPassword = password.trim();
+
+      // Basic validation
+      if (!trimmedEmail || !trimmedPassword) {
+        throw new Error('Email e senha sao obrigatorios');
+      }
+
       if (mode === 'register') {
-        await onRegister(name.trim(), email.trim(), password);
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+          throw new Error('Nome eh obrigatorio');
+        }
+        // Basic name validation (no special chars that could cause XSS)
+        if (!/^[\p{L}\p{N}\s'-]+$/u.test(trimmedName)) {
+          throw new Error('Nome contem caracteres invalidos');
+        }
+        await onRegister(trimmedName, trimmedEmail, trimmedPassword);
       } else {
-        await onLogin(email.trim(), password);
+        await onLogin(trimmedEmail, trimmedPassword);
       }
     } catch (err) {
       setError(err.message);
