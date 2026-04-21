@@ -11,20 +11,20 @@
 
 export const COURSE = {
   brand: {
-    name: import.meta.env.VITE_BRAND_NAME || 'Whitelabel Learn',
-    shortName: import.meta.env.VITE_BRAND_SHORT || 'Curso',
-    tagline: import.meta.env.VITE_BRAND_TAGLINE || 'Aprenda passo a passo',
-    logo: '📚',
-    storagePrefix: import.meta.env.VITE_BRAND_STORAGE_PREFIX || 'wl-course',
-    certificateWatermark: import.meta.env.VITE_BRAND_CERT_WATERMARK || 'W H I T E L A B E L   L E A R N',
+    name: import.meta.env.VITE_BRAND_NAME || 'Data Analysis com Python',
+    shortName: import.meta.env.VITE_BRAND_SHORT || 'DataPy',
+    tagline: import.meta.env.VITE_BRAND_TAGLINE || 'Transforme dados em decisões com Python, pandas e Jupyter.',
+    logo: '📊',
+    storagePrefix: import.meta.env.VITE_BRAND_STORAGE_PREFIX || 'datapy-course',
+    certificateWatermark: import.meta.env.VITE_BRAND_CERT_WATERMARK || 'L E A R N  D A T A  A N A L Y S I S  W I T H  P Y T H O N',
     certificateFooter: 'Plataforma de Aprendizagem Interativa  |  Certificado verificável',
     validateUrl: import.meta.env.VITE_VALIDATE_URL || '/validate',
   },
 
   theme: {
-    primary: '#E87040',
-    primaryLight: '#F4A261',
-    primaryDark: '#C25A30',
+    primary: '#A855F7',
+    primaryLight: '#C084FC',
+    primaryDark: '#7E22CE',
     bg0: '#0F0F14',
     bg1: '#16161D',
     bg2: '#1C1C26',
