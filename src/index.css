@@ -115,6 +115,10 @@ html, body, #root {
 
 /* Chapter page */
 .chapter-page { min-height:100%; }
+article.chapter-inner { max-width:760px; margin:0 auto; padding:56px 40px 32px; }
+article.chapter-inner code { background:rgba(255,255,255,0.06); color:var(--tx); }
+article.chapter-inner pre { background:var(--bgt); border:1px solid var(--brd); border-radius:8px; padding:16px 20px; overflow-x:auto; margin:14px 0; }
+article.chapter-inner pre code { background:transparent; color:var(--tx); padding:0; font-size:inherit; border-radius:0; }
 .chapter-footer { max-width:760px; margin:0 auto; padding:24px 40px 60px; display:flex; flex-direction:column; align-items:center; gap:14px; border-top:1px solid var(--brd); }
 .chapter-footer-label { font-size:14px; color:var(--tx3); font-family:'JetBrains Mono',monospace; }
 .chapter-quiz-btn { display:inline-flex; align-items:center; gap:10px; padding:14px 36px; background:linear-gradient(135deg,var(--co),var(--co-l)); border:none; border-radius:10px; color:#fff; font-family:'DM Sans',sans-serif; font-size:16px; font-weight:600; cursor:pointer; transition:all 0.2s; }
@@ -325,6 +329,7 @@ li { margin-bottom:4px; }
 @media (max-width: 600px) {
   .ch { padding: 40px 16px 32px; }
   .ch-title { font-size: 24px; }
+  article.chapter-inner { padding: 32px 16px 24px; }
   .chapter-footer { padding: 20px 16px 48px; }
   .card { padding: 16px; }
   .ex { padding: 16px; }
@@ -363,6 +368,7 @@ li { margin-bottom:4px; }
 /* ── md: tablet (601–959px) ── */
 @media (min-width: 601px) and (max-width: 959px) {
   .ch { padding: 56px 28px 40px; }
+  article.chapter-inner { padding: 40px 28px 28px; }
   .toc-progress-section { padding: 0 28px 48px; }
   .module-landing { padding: 48px 28px; }
   .quiz-page { padding: 36px 20px 80px; }
