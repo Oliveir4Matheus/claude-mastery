@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { COURSE } from '../config/course.config';
 
 export default function AuthScreen({ onLogin, onRegister }) {
   const [mode, setMode] = useState('login');
@@ -46,9 +47,9 @@ export default function AuthScreen({ onLogin, onRegister }) {
     <div className="auth-screen">
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">⟳</div>
-          <h1 className="auth-title">Claude Code Mastery</h1>
-          <p className="auth-tagline">Domine o Claude Code em 15 capítulos</p>
+          <div className="auth-logo">{COURSE.brand.logo}</div>
+          <h1 className="auth-title">{COURSE.brand.name}</h1>
+          <p className="auth-tagline">{COURSE.brand.tagline}</p>
         </div>
 
         <div className="auth-body">

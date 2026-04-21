@@ -1,8 +1,9 @@
 const BASE = import.meta.env.VITE_API_URL || '/api';
+const TOKEN_KEY = `${import.meta.env.VITE_BRAND_STORAGE_PREFIX || 'wl-course'}-token`;
 
-function getToken() { return localStorage.getItem('claude-mastery-token'); }
-function setToken(t) { localStorage.setItem('claude-mastery-token', t); }
-export function clearToken() { localStorage.removeItem('claude-mastery-token'); }
+function getToken() { return localStorage.getItem(TOKEN_KEY); }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+export function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 export function hasToken() { return !!getToken(); }
 
 async function request(path, options = {}) {

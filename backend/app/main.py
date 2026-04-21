@@ -10,7 +10,7 @@ from .config import CORS_ORIGIN, JWT_SECRET
 if not JWT_SECRET:
     raise RuntimeError("JWT_SECRET environment variable is required and must be set")
 
-app = FastAPI(title="Claude Code Mastery API", version="1.0.0")
+app = FastAPI(title="Whitelabel Learn API", version="1.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

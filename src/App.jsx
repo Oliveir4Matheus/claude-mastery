@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from './hooks/useAuth';
+import { COURSE } from './config/course.config';
 import AuthScreen from './components/AuthScreen';
 import Reader from './components/Reader';
 import ValidatePage from './components/ValidatePage';
@@ -36,8 +37,8 @@ export default function App() {
       <div className="auth-screen">
         <div className="auth-card">
           <div className="auth-brand">
-            <div className="auth-logo">⟳</div>
-            <h1 className="auth-title">Claude Code Mastery</h1>
+            <div className="auth-logo">{COURSE.brand.logo}</div>
+            <h1 className="auth-title">{COURSE.brand.name}</h1>
           </div>
           <div className="auth-body" style={{textAlign:'center'}}>
             <p className="auth-subtitle">Carregando...</p>

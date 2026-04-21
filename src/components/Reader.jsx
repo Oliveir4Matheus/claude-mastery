@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { CHAPTERS } from '../data/chapters';
+import { COURSE } from '../config/course.config';
 import { useProgress } from '../hooks/useProgress';
 import { useSpacedRepetition } from '../hooks/useSpacedRepetition';
 import Cover from './Cover';
@@ -67,7 +68,7 @@ export default function Reader({ auth }) {
     saveCurrentPage(idx);
     setSidebarOpen(false);
     setShowReview(false);
-    setShowAnalytics(false);
+    setShowProfile(false);
   }, [saveCurrentPage]);
 
   const goNext = useCallback(() => { if (canGoNext()) goTo(currentPage + 1, 'forward'); }, [canGoNext, currentPage, goTo]);
@@ -93,7 +94,9 @@ export default function Reader({ auth }) {
     if (passed && !alreadyPassed) {
       const ch = CHAPTERS.find(c => c.id === page.chId);
       srs.initChapterCards(page.chId, ch.quiz.length);
-      setCertData({ chapter: ch, score });
+      if (COURSE.features.certificates) {
+        setCertData({ chapter: ch, score });
+      }
     }
   }, [page, recordQuizResult, progress.passedChapters, srs]);
 
@@ -225,7 +228,7 @@ export default function Reader({ auth }) {
         passedChapters={progress.passedChapters}
         onNavigate={goTo}
       />
-      {journeyOpen && (
+      {journeyOpen && COURSE.features.journeyMap && (
         <JourneyMap
           onClose={() => setJourneyOpen(false)}
           onSelectChapter={handleSelectChapter}
@@ -246,7 +249,7 @@ export default function Reader({ auth }) {
           getChapterDecay={srs.getChapterDecay}
         />
       )}
-      {certData && (
+      {certData && COURSE.features.certificates && (
         <Certificate
           chapter={certData.chapter}
           score={certData.score}

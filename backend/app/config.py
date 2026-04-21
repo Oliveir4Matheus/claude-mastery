@@ -1,6 +1,6 @@
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://mastery:mastery_secret@localhost:5435/claude_mastery")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://mastery:mastery_secret@localhost:5435/wl_course")
 
 JWT_SECRET = os.getenv("JWT_SECRET", "")
 

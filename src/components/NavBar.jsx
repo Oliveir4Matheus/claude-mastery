@@ -1,8 +1,11 @@
+import { COURSE } from '../config/course.config';
+
 export default function NavBar({
   onPrev, onNext, canPrev, canNext, currentPage, totalPages, pageTitle,
   onToggleSidebar, onToggleJourney, onToggleReview, onToggleProfile,
   isQuizLocked, dueReviewCount, showReview, showProfile, userName,
 }) {
+  const f = COURSE.features;
   return (
     <nav className="reader-nav">
       <button className="nav-btn" onClick={onPrev} disabled={!canPrev} aria-label="Anterior">
@@ -41,9 +44,11 @@ export default function NavBar({
         )}
       </button>
 
-      <button className="nav-toc-btn" onClick={onToggleJourney} aria-label="Mapa da Jornada">
-        🗺 <span className="nav-toc-label">Mapa</span>
-      </button>
+      {f.journeyMap && (
+        <button className="nav-toc-btn" onClick={onToggleJourney} aria-label="Mapa da Jornada">
+          🗺 <span className="nav-toc-label">Mapa</span>
+        </button>
+      )}
 
       <button className="nav-toc-btn" onClick={onToggleSidebar} aria-label="Capítulos">
         ☰ <span className="nav-toc-label">Capítulos</span>

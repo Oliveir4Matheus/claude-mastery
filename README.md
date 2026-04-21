@@ -1,192 +1,127 @@
-# Claude Mastery
+# Whitelabel Learn
 
-Plataforma de aprendizado interativo para dominar o Claude Code. Curso estruturado em 16 capítulos com quizzes, desafios práticos, repetição espaçada (SRS), streaks e certificados verificáveis publicamente.
-
----
-
-## Conteúdo
-
-- [Tecnologias](#tecnologias)
-- [Arquitetura](#arquitetura)
-- [Funcionalidades](#funcionalidades)
-- [Capítulos](#capítulos)
-- [Rodando localmente](#rodando-localmente)
-- [Deploy com Docker](#deploy-com-docker)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
-- [API Reference](#api-reference)
+Motor whitelabel de microcurso com **retenção**: quizzes com calibração, **SRS Leitner** (5 caixas), retrieval practice inline, streaks, desafios práticos e **certificados verificáveis publicamente**. Você pluga o conteúdo; o motor cuida de tudo que faz o aluno lembrar.
 
 ---
 
-## Tecnologias
+## O que você recebe
 
-| Camada | Stack |
-|--------|-------|
-| Frontend | React 19 + Vite 8 (JSX, sem TypeScript) |
-| Backend | FastAPI + SQLAlchemy 2 async + Alembic |
-| Banco | PostgreSQL 16 |
-| Infra | Docker Compose + Nginx |
-| Auth | JWT (Bearer token) |
+- **Motor pedagógico** agnóstico a tema — React + FastAPI + Postgres, JWT, Docker
+- **3 pontos de configuração** — brand/tema, lista de capítulos, HTML de conteúdo
+- **Cookbook** (`cookbook.md`) — wizard que o Claude Code executa para transformar uma fonte (PDF, Markdown, URL) em um curso pronto
+- **Infra pronta** — `docker compose up --build` sobe frontend + backend + banco
 
----
+## Componentes do motor (não mexa sem motivo)
 
-## Arquitetura
+- Quiz com score, tentativas, explicações e *calibração de confiança*
+- Retrieval Practice via `RetrievalCheckpoint` injetado no HTML do capítulo
+- SRS Leitner 5 caixas (`[1, 3, 7, 14, 30]` dias) — `backend/app/routes.py`
+- Streaks (current/longest/total)
+- Certificados PNG com código de validação público (`/validate/:code`)
+- Journey Map visual com mundos configuráveis
+- Perfil com analytics (retenção estimada, pontos fracos, calibração)
+
+## Configurando o seu curso
+
+### Opção 1 — Cookbook (recomendado)
+
+No Claude Code, rode:
 
 ```
-claude-mastery/
-├── src/                     # Frontend React
-│   ├── components/          # Componentes PascalCase
-│   ├── hooks/               # Custom hooks (useAuth, useSync…)
-│   ├── data/
-│   │   ├── chapters.js      # Source of truth do conteúdo (estático)
-│   │   └── content.js       # Conteúdo HTML dos capítulos
-│   └── api.js               # API client centralizado (Bearer JWT)
-├── backend/
-│   └── app/
-│       ├── main.py          # Entrypoint FastAPI
-│       ├── routes.py        # Todos os endpoints
-│       ├── models.py        # SQLAlchemy models
-│       ├── schemas.py       # Pydantic schemas
-│       ├── auth.py          # JWT + bcrypt
-│       └── database.py      # Sessão async
-├── Dockerfile.frontend      # Nginx servindo build do Vite
-├── Dockerfile.server        # Python 3.12 + uvicorn
-└── docker-compose.yml
+/cookbook
 ```
 
-**Decisões arquiteturais:**
-- **State-based routing** — `useState` no `App.jsx` em vez de react-router (SPA simples sem rotas)
-- **Sync pattern** — endpoint `/api/sync` carrega todo o estado do usuário de uma vez no boot
-- **Conteúdo desacoplado do banco** — `chapters.js` é estático; progresso mapeado por `chapter_id` no PostgreSQL
-- **SRS Leitner** — 5 caixas com intervalos `[1, 3, 7, 14, 30]` dias
+O wizard pergunta o tema, coleta fontes (PDF / URL / texto) e gera os três arquivos de conteúdo. Ele **nunca** toca no motor. Modelos caros são evitados — processamento pesado roda em subagents Sonnet/Haiku.
 
----
+### Opção 2 — Manual
 
-## Funcionalidades
+Edite três arquivos:
 
-- **Auth** — Registro e login com email/senha, JWT persistido no localStorage
-- **Reader** — Leitura de capítulos com persistência de posição (`current_page`)
-- **Quiz** — Por capítulo com score, tentativas, feedback explicativo e calibração de confiança
-- **SRS** — Spaced Repetition System (Leitner 5 caixas) para revisão de flashcards
-- **Streaks** — Rastreamento de dias consecutivos de revisão (atual, maior, total)
-- **Desafios** — Checklist de critérios por capítulo com persistência
-- **Certificados** — Gerados ao completar capítulos, verificáveis publicamente via `/validate/:code`
-- **Journey Map** — Mapa visual pixel-art do progresso nos 4 mundos
-- **Perfil** — Progresso geral, streak, certificados emitidos
-- **Analytics** — Dashboard com histórico de revisões e desempenho por capítulo
-
----
-
-## Capítulos
-
-| # | Título | Mundo |
-|---|--------|-------|
-| 01 | O Loop Agêntico | Fundamentos |
-| 02 | Fundamentos de Prompting | Fundamentos |
-| 03 | Anatomia do .claude | Fundamentos |
-| 04 | CLAUDE.md Avançado | Fundamentos |
-| 05 | Permissões e Segurança | Configuração |
-| 06 | Slash Commands e Sessões | Configuração |
-| 07 | Técnicas Avançadas de Prompting | Configuração |
-| 08 | Hooks | Configuração |
-| 09 | Skills | Automação |
-| 10 | Subagents e Orquestração | Automação |
-| 11 | Engenharia de Prompt para Automação | Automação |
-| 12 | MCP e Integrações | Automação |
-| 13 | Workflows de Produção | Produção |
-| 14 | Desenvolvimento Baseado em Evidências | Produção |
-| 15 | Git Workflows Avançados | Produção |
-| 16 | Spec-Driven e Test-Driven Development | Produção |
-
----
+| Arquivo | O que contém |
+|---|---|
+| `src/config/course.config.js` | Nome do curso, tagline, logo, paleta de cores, "mundos" do JourneyMap |
+| `src/data/chapters.js` | Lista de capítulos com `quiz`, `checkpoints`, `challenges` |
+| `src/data/extracted.json` | HTML renderizável (capa, sumário, conteúdo de cada capítulo) + CSS |
 
 ## Rodando localmente
 
-**Pré-requisitos:** Node 20+, Python 3.12+, PostgreSQL 16
+**Requisitos:** Node 20+, Python 3.12+, Postgres 16
 
 ```bash
-# 1. Clone e instale dependências
-git clone https://github.com/Oliveir4Matheus/claude-mastery.git
-cd claude-mastery
+# 1. deps + env
 npm install
-
-# 2. Configure o ambiente
 cp .env.example .env
-# Edite .env com sua DATABASE_URL e JWT_SECRET
+# edite .env: pelo menos JWT_SECRET, CORS_ORIGIN, POSTGRES_* e VITE_BRAND_*
 
-# 3. Inicie o backend
+# 2. backend
 cd backend
 pip install -r requirements.txt
 alembic upgrade head
 uvicorn app.main:app --port 3002 --reload
 
-# 4. Inicie o frontend (em outro terminal)
+# 3. frontend (outro terminal)
 cd ..
-npm run dev
+npm run dev   # http://localhost:5173
 ```
-
-Acesse: `http://localhost:5173`
-
-O Vite proxeia `/api` para `localhost:3002` automaticamente.
-
----
 
 ## Deploy com Docker
 
 ```bash
-# Build e sobe todos os serviços
 docker compose up --build -d
-
-# Verificar logs
-docker compose logs -f
-
-# Parar
-docker compose down
 ```
 
-A stack sobe 3 containers:
-- `frontend` — Nginx na porta 80 servindo o build do React
-- `app` — FastAPI na porta 3001
-- `db` — PostgreSQL 16 com volume persistente
-
-As migrations do Alembic rodam automaticamente no boot do `app`.
-
----
+Sobe 3 containers: `frontend` (Nginx), `app` (FastAPI) e `db` (Postgres 16 com volume). Alembic roda as migrations no boot do `app`.
 
 ## Variáveis de ambiente
 
-Copie `.env.example` para `.env` e preencha:
+Todas em `.env.example`. Críticas:
 
-| Variável | Descrição | Exemplo |
-|----------|-----------|---------|
-| `POSTGRES_DB` | Nome do banco | `claude_mastery` |
-| `POSTGRES_USER` | Usuário do banco | `mastery` |
-| `POSTGRES_PASSWORD` | Senha do banco | string forte |
-| `JWT_SECRET` | Segredo para assinar tokens | string longa e aleatória |
-| `CORS_ORIGIN` | Origem permitida pelo backend | `https://seudominio.com` |
-| `VITE_API_URL` | Prefixo das chamadas de API | `/api` |
-| `VITE_APP_URL` | URL pública da aplicação | `https://seudominio.com` |
-| `VITE_VALIDATE_URL` | URL base para validação de certificados | `https://seudominio.com/validate` |
+| Variável | Descrição |
+|---|---|
+| `JWT_SECRET` | **obrigatório**. Gere com `openssl rand -hex 32` |
+| `CORS_ORIGIN` | **obrigatório**. Domínios permitidos, separados por vírgula |
+| `POSTGRES_*` | Credenciais do banco |
+| `VITE_BRAND_NAME` | Nome exibido no app, certificado, auth screen |
+| `VITE_BRAND_TAGLINE` | Subtítulo na tela de login |
+| `VITE_BRAND_STORAGE_PREFIX` | Chave usada no `localStorage` |
+| `VITE_BRAND_CERT_WATERMARK` | Texto do topo do certificado |
+| `VITE_APP_URL` / `VITE_VALIDATE_URL` | URLs públicas |
 
-> `VITE_*` são build args — precisam estar disponíveis **em tempo de build** do frontend (injetados pelo Docker Compose via `args`).
+As `VITE_*` são **build args** — precisam estar presentes em tempo de build.
 
----
+## Estrutura
 
-## API Reference
+```
+.
+├── src/
+│   ├── config/course.config.js   # único ponto de branding/tema
+│   ├── data/
+│   │   ├── chapters.js           # capítulos + quiz + challenges
+│   │   └── extracted.json        # HTML/CSS do conteúdo
+│   ├── components/               # motor (Reader, Quiz, JourneyMap, SRS…)
+│   └── hooks/                    # useAuth, useProgress, useSpacedRepetition
+├── backend/app/                  # FastAPI, agnóstico ao conteúdo
+├── cookbook.md                   # wizard invocado via /cookbook
+├── .claude/commands/cookbook.md  # slash command
+└── docker-compose.yml
+```
 
-| Método | Rota | Descrição | Auth |
-|--------|------|-----------|------|
-| `POST` | `/api/auth/register` | Registro | — |
-| `POST` | `/api/auth/login` | Login | — |
-| `GET` | `/api/sync` | Carrega estado completo do usuário | ✓ |
-| `POST` | `/api/progress` | Atualiza progresso de capítulo | ✓ |
-| `POST` | `/api/page` | Salva página atual do reader | ✓ |
-| `POST` | `/api/certificates` | Emite certificado | ✓ |
-| `GET` | `/api/certificates` | Lista certificados do usuário | ✓ |
-| `GET` | `/api/validate/:code` | Valida certificado publicamente | — |
-| `POST` | `/api/srs/init` | Inicializa cards SRS de um capítulo | ✓ |
-| `POST` | `/api/srs/review` | Registra resultado de revisão | ✓ |
-| `GET` | `/api/srs/due` | Retorna cards para revisar hoje | ✓ |
-| `POST` | `/api/challenges` | Marca/desmarca desafio concluído | ✓ |
-| `GET` | `/api/health` | Health check | — |
+## API
 
-Rate limits: `5 req/hora` no registro, `10 req/min` no login.
+| Método | Rota | Auth |
+|---|---|---|
+| `POST` | `/api/auth/register` | — |
+| `POST` | `/api/auth/login` | — |
+| `GET` | `/api/sync` | ✓ |
+| `POST` | `/api/progress` | ✓ |
+| `POST` | `/api/page` | ✓ |
+| `POST` | `/api/certificates` | ✓ |
+| `GET` | `/api/certificates` | ✓ |
+| `GET` | `/api/validate/:code` | — |
+| `POST` | `/api/srs/init` | ✓ |
+| `POST` | `/api/srs/review` | ✓ |
+| `GET` | `/api/srs/due` | ✓ |
+| `POST` | `/api/challenges` | ✓ |
+| `GET` | `/api/health` | — |
+
+Rate limits: `5 req/hora` em register, `10 req/min` em login.

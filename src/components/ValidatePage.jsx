@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { apiValidateCertificate } from '../api'
+import { COURSE } from '../config/course.config'
 
-const APP_URL = import.meta.env.VITE_APP_URL || ''
-const VALIDATE_URL = import.meta.env.VITE_VALIDATE_URL || `${APP_URL}/validate`
+const VALIDATE_URL = COURSE.brand.validateUrl
 
 const formatDate = (d) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 
@@ -13,45 +13,47 @@ function drawCertificate(canvas, name, title, score, code, issuedAt) {
     canvas.width = W
     canvas.height = H
 
-    ctx.fillStyle = '#0F0F14'
+    const t = COURSE.theme
+
+    ctx.fillStyle = t.bg0
     ctx.fillRect(0, 0, W, H)
-    ctx.strokeStyle = '#E87040'
+    ctx.strokeStyle = t.primary
     ctx.lineWidth = 4
     ctx.strokeRect(12, 12, W - 24, H - 24)
-    ctx.strokeStyle = '#2A2A35'
+    ctx.strokeStyle = t.border
     ctx.lineWidth = 1
     ctx.strokeRect(24, 24, W - 48, H - 48)
-    ctx.fillStyle = '#16161D'
+    ctx.fillStyle = t.bg1
     ctx.fillRect(12, 12, W - 24, 130)
-    ctx.fillStyle = '#E87040'
+    ctx.fillStyle = t.primary
     ctx.fillRect(12, 142, W - 24, 3)
 
     ctx.textAlign = 'center'
-    ctx.fillStyle = '#E87040'
+    ctx.fillStyle = t.primary
     ctx.font = 'bold 13px "Courier New", monospace'
-    ctx.fillText('C L A U D E   C O D E   M A S T E R Y', W / 2, 55)
-    ctx.fillStyle = '#E8E4DF'
+    ctx.fillText(COURSE.brand.certificateWatermark, W / 2, 55)
+    ctx.fillStyle = t.tx
     ctx.font = 'bold 34px Georgia, "Times New Roman", serif'
     ctx.fillText('CERTIFICADO DE CONCLUSAO', W / 2, 105)
 
     const cs = 32, cp = 36
     ;[[cp, 158], [W - cp - cs, 158], [cp, H - cp - cs], [W - cp - cs, H - cp - cs]].forEach(([x, y]) => {
-      ctx.strokeStyle = '#E87040'
+      ctx.strokeStyle = t.primary
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.moveTo(x + cs, y); ctx.lineTo(x, y); ctx.lineTo(x, y + cs)
       ctx.stroke()
     })
 
-    ctx.fillStyle = '#9B9690'
+    ctx.fillStyle = t.tx2
     ctx.font = 'italic 20px Georgia, serif'
     ctx.fillText('Certificamos que', W / 2, 235)
-    ctx.fillStyle = '#E87040'
+    ctx.fillStyle = t.primary
     ctx.font = 'bold 50px Georgia, "Times New Roman", serif'
     ctx.fillText(name, W / 2, 310)
 
     const nw = Math.min(ctx.measureText(name).width, W - 200)
-    ctx.strokeStyle = '#E87040'
+    ctx.strokeStyle = t.primary
     ctx.lineWidth = 2
     ctx.globalAlpha = 0.4
     ctx.beginPath()
@@ -59,17 +61,17 @@ function drawCertificate(canvas, name, title, score, code, issuedAt) {
     ctx.stroke()
     ctx.globalAlpha = 1
 
-    ctx.fillStyle = '#9B9690'
+    ctx.fillStyle = t.tx2
     ctx.font = 'italic 20px Georgia, serif'
     ctx.fillText('concluiu com exito', W / 2, 385)
-    ctx.fillStyle = '#E8E4DF'
+    ctx.fillStyle = t.tx
     ctx.font = 'bold 28px Georgia, serif'
     ctx.fillText(title, W / 2, 440)
-    ctx.fillStyle = '#6BCB77'
+    ctx.fillStyle = t.green
     ctx.font = 'bold 18px "Courier New", monospace'
     ctx.fillText(`Aprovado com ${score}% de aproveitamento`, W / 2, 495)
 
-    ctx.strokeStyle = '#2A2A35'
+    ctx.strokeStyle = t.border
     ctx.lineWidth = 1
     ctx.setLineDash([8, 6])
     ctx.beginPath()
@@ -78,36 +80,35 @@ function drawCertificate(canvas, name, title, score, code, issuedAt) {
     ctx.setLineDash([])
 
     const dateStr = new Date(issuedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
-    ctx.fillStyle = '#6B6560'
+    ctx.fillStyle = t.tx3
     ctx.font = '16px Georgia, serif'
     ctx.textAlign = 'left'
     ctx.fillText(dateStr, 100, 600)
 
     ctx.textAlign = 'right'
     ctx.font = '12px "Courier New", monospace'
-    ctx.fillStyle = '#9B9690'
+    ctx.fillStyle = t.tx2
     ctx.fillText('Codigo de validacao:', W - 100, 590)
-    ctx.fillStyle = '#E87040'
+    ctx.fillStyle = t.primary
     ctx.font = 'bold 16px "Courier New", monospace'
     ctx.fillText(code, W - 100, 612)
 
-    ctx.fillStyle = '#6B6560'
+    ctx.fillStyle = t.tx3
     ctx.font = '11px "Courier New", monospace'
     ctx.textAlign = 'center'
     ctx.fillText(`Valide em: ${VALIDATE_URL}/${code}`, W / 2, 660)
 
-    ctx.fillStyle = '#16161D'
+    ctx.fillStyle = t.bg1
     ctx.fillRect(12, H - 70, W - 24, 58)
-    ctx.fillStyle = '#6B6560'
+    ctx.fillStyle = t.tx3
     ctx.font = '12px "Courier New", monospace'
     ctx.textAlign = 'center'
-    ctx.fillText('Claude Code Mastery  |  Plataforma de Aprendizagem Interativa  |  Certificado verificavel', W / 2, H - 35)
+    ctx.fillText(`${COURSE.brand.name}  |  ${COURSE.brand.certificateFooter}`, W / 2, H - 35)
   } catch (err) {
     console.error('Certificate draw error:', err)
   }
 }
 
-// Validate certificate code format (14 chars alphanumeric)
 function validateCertCode(code) {
   return /^[A-Z0-9]{14}$/.test(code);
 }
@@ -117,7 +118,6 @@ export default function ValidatePage({ code }) {
   const [cert, setCert] = useState(null)
   const canvasRef = useRef(null)
 
-  // Validate code format before making request
   if (!validateCertCode(code)) {
     return (
       <div className="vp-wrap">
@@ -210,7 +210,7 @@ export default function ValidatePage({ code }) {
           </div>
 
           <div className="vp-footer-info">
-            <p>Este certificado foi emitido pela plataforma <strong>Claude Code Mastery</strong> e pode ser verificado a qualquer momento nesta pagina.</p>
+            <p>Este certificado foi emitido pela plataforma <strong>{COURSE.brand.name}</strong> e pode ser verificado a qualquer momento nesta pagina.</p>
             <a href="/" className="vp-back-btn">Conhecer o curso</a>
           </div>
         </div>

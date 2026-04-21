@@ -1,6 +1,8 @@
 import ChallengeCard from './ChallengeCard';
+import { COURSE } from '../config/course.config';
 
 export default function ModuleLanding({ chapter, onStart, passed, quizResult, onReset, challenges = {}, onToggleChallenge }) {
+  const showChallenges = COURSE.features.challenges;
   return (
     <div className="module-landing">
       <div className="ml-inner">
@@ -35,7 +37,7 @@ export default function ModuleLanding({ chapter, onStart, passed, quizResult, on
         </div>
 
         {/* Practical challenges (visible after passing) */}
-        {passed && chapter.challenges?.length > 0 && (
+        {showChallenges && passed && chapter.challenges?.length > 0 && (
           <div className="ml-challenges">
             <h3 className="ml-challenges-title">🎯 Desafios Práticos</h3>
             <p className="ml-challenges-desc">Aplique o que aprendeu no seu próprio ambiente</p>

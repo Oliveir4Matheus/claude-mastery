@@ -7,6 +7,11 @@ services:
         - VITE_API_URL=${VITE_API_URL:-/api}
         - VITE_APP_URL=${VITE_APP_URL:-}
         - VITE_VALIDATE_URL=${VITE_VALIDATE_URL:-}
+        - VITE_BRAND_NAME=${VITE_BRAND_NAME:-Whitelabel Learn}
+        - VITE_BRAND_SHORT=${VITE_BRAND_SHORT:-Curso}
+        - VITE_BRAND_TAGLINE=${VITE_BRAND_TAGLINE:-Aprenda passo a passo}
+        - VITE_BRAND_STORAGE_PREFIX=${VITE_BRAND_STORAGE_PREFIX:-wl-course}
+        - VITE_BRAND_CERT_WATERMARK=${VITE_BRAND_CERT_WATERMARK:-W H I T E L A B E L   L E A R N}
     restart: always
     depends_on:
       app:
@@ -23,7 +28,7 @@ services:
       dockerfile: Dockerfile.server
     restart: always
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mastery}:${POSTGRES_PASSWORD:-mastery_secret}@db:5432/${POSTGRES_DB:-claude_mastery}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mastery}:${POSTGRES_PASSWORD:-mastery_secret}@db:5432/${POSTGRES_DB:-wl_course}
       - JWT_SECRET=${JWT_SECRET}
       - CORS_ORIGIN=${CORS_ORIGIN:-}
     depends_on:
@@ -40,13 +45,13 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-claude_mastery}
+      - POSTGRES_DB=${POSTGRES_DB:-wl_course}
       - POSTGRES_USER=${POSTGRES_USER:-mastery}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mastery_secret}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mastery} -d ${POSTGRES_DB:-claude_mastery}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mastery} -d ${POSTGRES_DB:-wl_course}"]
       interval: 10s
       timeout: 5s
       retries: 5

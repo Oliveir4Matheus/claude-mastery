@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CONTENT } from '../data/content';
+import { COURSE } from '../config/course.config';
 import RetrievalCheckpoint from './RetrievalCheckpoint';
 
 export default function ChapterContent({ chapter, onQuiz }) {
@@ -10,7 +11,7 @@ export default function ChapterContent({ chapter, onQuiz }) {
   // Inject checkpoint mount points into the rendered HTML
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !chapter.checkpoints?.length) {
+    if (!el || !chapter.checkpoints?.length || !COURSE.features.retrievalCheckpoints) {
       setMountPoints([]);
       return;
     }

@@ -1,4 +1,4 @@
-# Política de Segurança — Claude Code Mastery
+# Política de Segurança — Whitelabel Learn
 
 ## Configuração Crítica para Produção
 

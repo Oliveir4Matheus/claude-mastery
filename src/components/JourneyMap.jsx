@@ -1,16 +1,32 @@
 import { useMemo, useEffect, useRef, useState } from 'react';
 import { CHAPTERS } from '../data/chapters';
+import { COURSE } from '../config/course.config';
 
 const DESKTOP = { cols: 4, cellW: 196, cellH: 218, nodeSize: 90 };
 const MOBILE  = { cols: 2, cellW: 160, cellH: 190, nodeSize: 70 };
 
-// Chapters per world (index ranges in CHAPTERS array)
-const WORLD_DEFS = [
-  { id: 'forest', start: 0,  count: 4,  label: 'MUNDO 1', sub: 'FUNDAMENTOS',  emoji: '🌲' },
-  { id: 'desert', start: 4,  count: 4,  label: 'MUNDO 2', sub: 'CONFIGURAÇÃO', emoji: '⚙' },
-  { id: 'ocean',  start: 8,  count: 4,  label: 'MUNDO 3', sub: 'AUTOMAÇÃO',    emoji: '🤖' },
-  { id: 'castle', start: 12, count: 5,  label: 'MUNDO 4', sub: 'PRODUÇÃO',     emoji: '🏰' },
-];
+// Derivado de COURSE.worlds — converte chapterIds em start/count no array CHAPTERS.
+function buildWorldDefs() {
+  const defs = [];
+  for (const w of (COURSE.worlds || [])) {
+    const indices = (w.chapterIds || [])
+      .map(id => CHAPTERS.findIndex(c => c.id === id))
+      .filter(i => i >= 0)
+      .sort((a, b) => a - b);
+    if (!indices.length) continue;
+    defs.push({
+      id: w.id,
+      start: indices[0],
+      count: indices[indices.length - 1] - indices[0] + 1,
+      label: w.label,
+      sub: w.sub,
+      emoji: w.emoji,
+    });
+  }
+  return defs;
+}
+
+const WORLD_DEFS = buildWorldDefs();
 
 function getWorldRows(def, cols) {
   const firstRow = Math.floor(def.start / cols);
@@ -146,7 +162,7 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
             <span className="jm-header-icon">🗺</span>
             <div className="jm-header-text">
               <div className="jm-header-title">MAPA DA JORNADA</div>
-              <div className="jm-header-sub">CLAUDE CODE MASTERY</div>
+              <div className="jm-header-sub">{COURSE.brand.name.toUpperCase()}</div>
             </div>
           </div>
 
@@ -227,14 +243,14 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                     {done && (
                       <line
                         x1={n.cx} y1={n.cy} x2={next.cx} y2={next.cy}
-                        stroke="#E87040" strokeWidth={16} opacity={0.12}
+                        stroke={COURSE.theme.primary} strokeWidth={16} opacity={0.12}
                         strokeLinecap="square"
                       />
                     )}
                     {/* Path principal */}
                     <line
                       x1={n.cx} y1={n.cy} x2={next.cx} y2={next.cy}
-                      stroke={done ? '#E87040' : '#252535'}
+                      stroke={done ? COURSE.theme.primary : COURSE.theme.border}
                       strokeWidth={done ? 5 : 3}
                       strokeDasharray={done ? 'none' : '9 7'}
                       strokeLinecap="square"
@@ -249,7 +265,7 @@ export default function JourneyMap({ onClose, onSelectChapter, onGenerateCertifi
                           x={n.cx + dx * t - 2.5}
                           y={n.cy + dy * t - 2.5}
                           width={5} height={5}
-                          fill="#F4A261"
+                          fill={COURSE.theme.primaryLight}
                           opacity={0.55}
                         />
                       );
