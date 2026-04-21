@@ -26,7 +26,13 @@ async function request(path, options = {}) {
   const text = await res.text();
   let data;
   try { data = JSON.parse(text); } catch { throw new Error(`Resposta invalida do servidor (${res.status})`); }
-  if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+  if (!res.ok) {
+    const d = data.detail;
+    const msg = Array.isArray(d)
+      ? d.map(e => e.msg || JSON.stringify(e)).join('; ')
+      : (d || data.error || `HTTP ${res.status}`);
+    throw new Error(msg);
+  }
   return data;
 }
 
