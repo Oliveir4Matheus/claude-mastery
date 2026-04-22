@@ -5,104 +5,6 @@ export const CHAPTERS = [
   {
     id: "ch01",
     num: "Cap\u00edtulo 01",
-    title: "Jupyter e IPython: Seu Ambiente",
-    objective: "Dominar o Jupyter Notebook e IPython como ambiente para an\u00e1lise interativa de dados.",
-    week: "Semana 1",
-    icon: "\ud83d\udcd3",
-    quiz: [
-      {
-        question: "Qual comando do IPython permite visualizar a assinatura de uma função sem executá-la?",
-        options: ["function()", "function?", "help(function)", "%inspect function"],
-        correct: 1,
-        explanation: "Use function? (um ponto de interrogação) para inspecionar a assinatura. Use ?? (dois) para ver o código-fonte. help(function) é Python puro, mas ? é mais rápido e específico do IPython.",
-        whyPrompt: "Por que você preferiria usar ? em vez de help() no IPython?",
-      },
-      {
-        question: "No Jupyter Notebook, qual atalho executa a célula atual e insere uma nova célula abaixo?",
-        options: ["Shift+Enter", "Ctrl+Enter", "Alt+Enter", "Ctrl+Shift+Enter"],
-        correct: 2,
-        explanation: "Alt+Enter executa e insere nova célula abaixo. Shift+Enter executa e move para a próxima. Ctrl+Enter apenas executa sem mover.",
-        whyPrompt: "Qual a diferença prática entre Shift+Enter e Alt+Enter no seu fluxo de trabalho?",
-      },
-      {
-        question: "O que o comando %timeit faz?",
-        options: ["Registra o tempo gasto em cada linha de código", "Executa uma expressão várias vezes e calcula a média de tempo", "Mostra quanto tempo o notebook levou para carregar", "Define um limite de tempo de execução para a célula"],
-        correct: 1,
-        explanation: "%timeit executa a expressão automaticamente múltiplas vezes, calculando a média e desvio padrão de tempo. É ideal para comparar performance de diferentes implementações.",
-        whyPrompt: "Como você usaria %timeit para decidir se deveria reescrever uma função?",
-      },
-      {
-        question: "Para converter uma célula de Código para Markdown no Jupyter (modo Comando), qual tecla você pressiona?",
-        options: ["M", "D", "Y", "C"],
-        correct: 0,
-        explanation: "M converte para Markdown, Y converte para Código. Essas são operações rápidas no modo Comando (azul).",
-        whyPrompt: "Por que manter células de Markdown intercaladas com células de Código é importante numa análise?",
-      },
-      {
-        question: "Qual afirmação sobre IPython é verdadeira?",
-        options: ["IPython é um substituto completo do Jupyter", "Jupyter Notebook encapsula IPython como seu kernel de execução", "IPython só funciona dentro de um Jupyter Notebook", "Jupyter é uma versão anterior do IPython"],
-        correct: 1,
-        explanation: "Jupyter Notebook roda IPython como seu interpretador por trás das cenas. Você pode usar IPython puro no terminal (digitando ipython), mas Jupyter oferece a interface de células.",
-        whyPrompt: "Se você tivesse que escolher entre trabalhar no terminal IPython ou em um Jupyter Notebook, qual seria melhor para exploração de dados e por quê?",
-      },
-      {
-        question: "Como você acessa o sistema de arquivos do seu computador enquanto trabalha num Jupyter Notebook?",
-        options: ["Não é possível; você precisa abrir um terminal separado", "Use comandos Python do módulo os", "Use ! antes do comando (ex: !ls ou !pwd)", "Use o comando %shell dentro de uma célula"],
-        correct: 2,
-        explanation: "Prefixe comandos do shell com ! para executá-los diretamente dentro do notebook. Ex: !ls, !pwd, !pip install pandas.",
-        whyPrompt: "Por que ter acesso ao shell dentro do notebook agiliza o fluxo de trabalho de um analista?",
-      },
-      {
-        question: "Qual é a principal diferença entre os dois modos do Jupyter?",
-        options: ["Modo Código permite editar; Modo Markdown permite visualizar", "Modo Comando (azul) para navegar entre células; Modo Edição (verde) para escrever dentro delas", "Modo Comando executa; Modo Edição apenas mostra o código", "Não há diferença; é apenas uma mudança de cor"],
-        correct: 1,
-        explanation: "Pressione Escape para entrar em Modo Comando (navegação entre células com A, B, D, M, Y). Pressione Enter para entrar em Modo Edição (escrever dentro da célula).",
-        whyPrompt: "Como o conhecimento desses dois modos afeta a sua velocidade de trabalho?",
-      },
-      {
-        question: "Se você quiser medir o tempo de execução de toda uma célula, qual comando você usa?",
-        options: ["%timeit no topo da célula", "%%timeit no topo da célula", "time.time() no início e fim", "%timer da célula"],
-        correct: 1,
-        explanation: "Use %%timeit (dois %) para medir a célula inteira. Use % (um) para medir uma linha única.",
-        whyPrompt: "Por que %timeit é mais confiável que usar time.time() manualmente?",
-      },
-    ],
-    checkpoints: [
-      {
-        insertAfter: "h2:nth-of-type(2)",
-        prompt: "Cite dois recursos do IPython que o diferenciam do shell Python padrão.",
-        expectedAnswer: "Autocomplete com Tab e inspeção com ? (ou comandos mágicos, histórico aprimorado, acesso a variáveis do shell)",
-      },
-      {
-        insertAfter: "h2:nth-of-type(4)",
-        prompt: "Qual é a sequência de atalhos para inserir uma nova célula abaixo da atual no Jupyter (modo Comando)?",
-        expectedAnswer: "Pressione B (ou Escape para entrar no modo Comando, depois B)",
-      },
-    ],
-    challenges: [
-      {
-        id: "ch01-c1",
-        title: "Explorar IPython Interativamente",
-        description: "Abra IPython ou Jupyter e execute os seguintes comandos em ordem: (1) Importe pandas como pd, (2) Crie um DataFrame simples com dados_dict = {'A': [1, 2, 3], 'B': [4, 5, 6]} e df = pd.DataFrame(dados_dict), (3) Use pd.DataFrame? para inspecionar a função, (4) Use %timeit df.sum() para medir a performance, (5) Use %who para listar variáveis.",
-        criteria: ["DataFrame criado e acessível via pd.DataFrame?", "Comando %timeit executado e resultado exibido", "Comando %who mostra pelo menos 'pd', 'df', 'dados_dict'"],
-      },
-      {
-        id: "ch01-c2",
-        title: "Estruturar um Notebook de Análise",
-        description: "Crie um novo Jupyter Notebook com: (1) Uma célula de Markdown com título 'Minha Primeira Análise' e uma breve descrição, (2) Uma célula de Código com imports (pandas, numpy, matplotlib.pyplot), (3) Uma célula de Markdown explicando o próximo passo, (4) Uma célula de Código que cria um DataFrame simples e chama .head(), (5) Salve o notebook como 'analise_primeiro_notebook.ipynb'.",
-        criteria: ["Notebook contém pelo menos 2 células Markdown e 2 células de Código", "Imports incluem pandas, numpy e matplotlib.pyplot", "DataFrame é criado e .head() é exibido"],
-      },
-      {
-        id: "ch01-c3",
-        title: "Dominar Atalhos do Jupyter",
-        description: "Em um Jupyter Notebook existente, pratique: (1) Pressione Escape para entrar no Modo Comando, (2) Use A para inserir uma célula acima, (3) Use B para inserir uma célula abaixo, (4) Use M para converter uma célula de Código para Markdown, (5) Use Y para converter de volta, (6) Use D D para deletar uma célula, (7) Navegue com seta para cima/baixo entre as células.",
-        criteria: ["Você consegue inserir células acima e abaixo sem usar o menu", "Você converte células entre Código e Markdown apenas com atalhos", "Você deleta uma célula usando D D no Modo Comando"],
-      },
-    ],
-  },
-  {
-    id: "ch02",
-    num: "Cap\u00edtulo 02",
     title: "NumPy: Arrays, Indexa\u00e7\u00e3o e Broadcasting",
     objective: "Criar, indexar e operar arrays NumPy usando broadcasting e vetoriza\u00e7\u00e3o.",
     week: "Semana 1",
@@ -179,19 +81,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch02-c1",
+        id: "ch01-c1",
         title: "Crie e Manipule Matrizes",
         description: "Crie uma matriz 4x5 com números de 0 a 19 usando reshape. Depois, altere todos os elementos maiores que 10 para -1.",
         criteria: ["Array 4x5", "Valores corretos após reshape", "Boolean indexing aplicado corretamente"],
       },
       {
-        id: "ch02-c2",
+        id: "ch01-c2",
         title: "Teste Broadcasting",
         description: "Crie um vetor coluna (5, 1) com valores [1, 2, 3, 4, 5] e um vetor linha (1, 3) com [10, 20, 30]. Multiplique-os usando broadcasting. Qual é a forma do resultado?",
         criteria: ["Broadcasting aplicado corretamente", "Forma resultante (5, 3)", "Valores corretos"],
       },
       {
-        id: "ch02-c3",
+        id: "ch01-c3",
         title: "Agregações com Múltiplos Eixos",
         description: "Crie uma matriz aleatória 3x4. Calcule a soma de cada coluna e a média de cada linha. Que coluna tem a maior soma?",
         criteria: ["Criação de matriz aleatória", "Somas corretas por coluna", "Identificação correta da coluna máxima"],
@@ -199,8 +101,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch03",
-    num: "Cap\u00edtulo 03",
+    id: "ch02",
+    num: "Cap\u00edtulo 02",
     title: "pandas Series: Dados Unidimensionais",
     objective: "Compreender Series como estrutura rotulada 1D e suas opera\u00e7\u00f5es b\u00e1sicas.",
     week: "Semana 2",
@@ -277,19 +179,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch03-c1",
+        id: "ch02-c1",
         title: "Construtor e Indexação",
         description: "Crie Series de gastos mensais (janeiro: 1500, fevereiro: 1800, março: 1600). Acesse por label, filtre meses acima de 1650, conte quantos.",
         criteria: ["Criar Series", "Acessar por label", "Aplicar máscara booleana", "Contar resultados"],
       },
       {
-        id: "ch03-c2",
+        id: "ch02-c2",
         title: "Alinhamento e NaN",
         description: "Crie duas Series de temperaturas (primeira: 3 dias, segunda: 4 dias, 2 em comum). Some-as. Use fillna com média.",
         criteria: ["Demonstrar alinhamento", "NaN handling", "fillna"],
       },
       {
-        id: "ch03-c3",
+        id: "ch02-c3",
         title: "Operações Vetorizadas",
         description: "Dada Series de vendas, calcule: (a) 10% desconto; (b) lucro com 30% margem; (c) classifique 'alto' (>1000) ou 'baixo'.",
         criteria: ["Usar operações vetorizadas", "Sem loops Python"],
@@ -297,8 +199,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch04",
-    num: "Cap\u00edtulo 04",
+    id: "ch03",
+    num: "Cap\u00edtulo 03",
     title: "pandas DataFrame: O N\u00facleo",
     objective: "Construir e manipular DataFrames, a estrutura central da an\u00e1lise com pandas.",
     week: "Semana 2",
@@ -375,19 +277,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch04-c1",
+        id: "ch03-c1",
         title: "Montar DataFrame de vendas",
         description: "Crie DataFrame com 'data', 'vendedor', 'valor'. Adicione 5 linhas. Use info/describe/T para inspecionar. Qual coluna tem maior variância?",
         criteria: ["DataFrame criado", "Métodos executados", "Análise de variância"],
       },
       {
-        id: "ch04-c2",
+        id: "ch03-c2",
         title: "Converter tipos",
         description: "DataFrame com data como string. Converta com pd.to_datetime. Crie coluna 'ano'. Remova a original. Mostre dtypes.",
         criteria: ["Conversão de tipo", "Coluna derivada", "Remoção"],
       },
       {
-        id: "ch04-c3",
+        id: "ch03-c3",
         title: "Explorar dataset real",
         description: "Carregue Titanic ou Iris com pd.read_csv. Execute head/tail/info/describe. Quantas linhas? Colunas? Qual tem mais nulos?",
         criteria: ["Carregamento", "4 comandos", "Respostas quantitativas"],
@@ -395,8 +297,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch05",
-    num: "Cap\u00edtulo 05",
+    id: "ch04",
+    num: "Cap\u00edtulo 04",
     title: "Sele\u00e7\u00e3o e Indexa\u00e7\u00e3o Avan\u00e7ada",
     objective: "Selecionar dados com precis\u00e3o usando .loc, .iloc e indexa\u00e7\u00e3o booleana.",
     week: "Semana 2",
@@ -473,19 +375,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch05-c1",
+        id: "ch04-c1",
         title: "Seleção em dados reais",
         description: "CSV com ['id','produto','preco','categoria','estoque']. Use .loc, .iloc e boolean: (a) preço>100 E estoque<50, (b) mude categoria de 'eletrônicos' para 'tech' com .loc, (c) verifique duplicatas.",
         criteria: ["Uso correto", "& (não and)", "Sem SettingWithCopyWarning"],
       },
       {
-        id: "ch05-c2",
+        id: "ch04-c2",
         title: "Comparar .loc vs .iloc vs .at",
         description: "100k linhas, 10 colunas. Meça tempo para: (a) .loc, (b) .at, (c) .iloc. Mais rápido? Quando usar cada?",
         criteria: ["Uso correto", "Medição", "Recomendação"],
       },
       {
-        id: "ch05-c3",
+        id: "ch04-c3",
         title: "Corrigir SettingWithCopyWarning",
         description: "Execute df[df['col']>5]['novo']='v'. Observe aviso. Corrija com .loc. Explique.",
         criteria: ["Reproduziu aviso", "Corrigiu", "Explicou"],
@@ -493,8 +395,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch06",
-    num: "Cap\u00edtulo 06",
+    id: "ch05",
+    num: "Cap\u00edtulo 05",
     title: "Carregando e Inspecionando Dados",
     objective: "Importar CSV, Excel e JSON e inspecionar DataFrames com head, info e describe.",
     week: "Semana 3",
@@ -571,19 +473,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch06-c1",
+        id: "ch05-c1",
         title: "Carregar e Inspecionar",
         description: "Baixe CSV público, carregue com read_csv, rode head/info/describe/isnull. Documente 5 insights.",
         criteria: ["Carregado", "5 funções rodadas", "5 insights"],
       },
       {
-        id: "ch06-c2",
+        id: "ch05-c2",
         title: "Tratamento de Encoding",
         description: "CSV com acentos em latin1. Carregue errado (utf-8), depois corrija com encoding='latin1'.",
         criteria: ["Erro demonstrado", "Correção aplicada"],
       },
       {
-        id: "ch06-c3",
+        id: "ch05-c3",
         title: "Pipeline completo",
         description: "CSV com sep=';', parse_dates, dtype, na_values, index_col. Exporte para Excel e JSON.",
         criteria: ["5 parâmetros", "Dois formatos exportados", "Validação"],
@@ -591,8 +493,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch07",
-    num: "Cap\u00edtulo 07",
+    id: "ch06",
+    num: "Cap\u00edtulo 06",
     title: "Limpeza e Transforma\u00e7\u00e3o de Dados",
     objective: "Tratar valores faltantes, duplicatas, tipos e transformar colunas com apply e map.",
     week: "Semana 3",
@@ -669,13 +571,13 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch07-c1",
+        id: "ch06-c1",
         title: "Limpeza Dataset de Vendas",
         description: "CSV sujo. Remova duplicatas de 'id', converta datas, to_numeric(coerce) em 'valor', preencha 'desconto' com média, normalize nomes com strip/lower.",
         criteria: ["Sem duplicatas", "data=datetime", "valor numérico", "Sem NaN em desconto", "Nomes limpos"],
       },
       {
-        id: "ch07-c2",
+        id: "ch06-c2",
         title: "apply() e Categorização",
         description: "'tempo_resposta': crie 'velocidade' (rápido <100, normal <500, lento) com apply. Categorize 'valor_venda' em quartis com qcut. value_counts.",
         criteria: ["3 categorias via apply", "qcut q=4", "value_counts"],
@@ -683,8 +585,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch08",
-    num: "Cap\u00edtulo 08",
+    id: "ch07",
+    num: "Cap\u00edtulo 07",
     title: "Manipula\u00e7\u00e3o: Merge, Concat e Pivot",
     objective: "Combinar, concatenar e remodelar DataFrames com merge, concat e pivot_table.",
     week: "Semana 3",
@@ -761,19 +663,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch08-c1",
+        id: "ch07-c1",
         title: "Merge Vendas e Devoluções",
         description: "vendas (cliente_id, produto, valor), devoluções (cliente_id, produto, desconto). LEFT JOIN e calcule valor_liquido.",
         criteria: ["Left join", "fillna(0)", "valor_liquido correto"],
       },
       {
-        id: "ch08-c2",
+        id: "ch07-c2",
         title: "Pivot Mensal",
         description: "DataFrame [data, regiao, categoria, receita]. pivot_table com regiao nas linhas, mês nas colunas.",
         criteria: ["pivot_table", "aggfunc='sum'", "Tabela cruzada"],
       },
       {
-        id: "ch08-c3",
+        id: "ch07-c3",
         title: "Melt e Pivot",
         description: "Pegue tabela larga e use melt. Depois pivot_table com aggfunc='mean'.",
         criteria: ["melt correto", "pivot com agg diferente", "Inversas"],
@@ -781,8 +683,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch09",
-    num: "Cap\u00edtulo 09",
+    id: "ch08",
+    num: "Cap\u00edtulo 08",
     title: "GroupBy e Agrega\u00e7\u00e3o",
     objective: "Aplicar o padr\u00e3o split-apply-combine para analisar dados por grupos.",
     week: "Semana 4",
@@ -859,19 +761,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch09-c1",
+        id: "ch08-c1",
         title: "Vendas por Região",
         description: "[regiao, mes, vendas, custo]. Agrupe por região: vendas totais, lucro médio, contagem. Normalize vendas dentro de cada região.",
         criteria: ["groupby agg múltiplas", "transform", "Sem erros"],
       },
       {
-        id: "ch09-c2",
+        id: "ch08-c2",
         title: "Crosstab",
         description: "Crosstab com categoria nas linhas, mes nas colunas, SUM de vendas. Equivalente com groupby.",
         criteria: ["crosstab", "groupby reshape", "Idênticos"],
       },
       {
-        id: "ch09-c3",
+        id: "ch08-c3",
         title: "Função Customizada",
         description: "Função retornando dict: amplitude, coef_var, outliers (>3*std). Use apply.",
         criteria: ["Função bem-formada", "apply", "Trata edge cases"],
@@ -879,8 +781,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch10",
-    num: "Cap\u00edtulo 10",
+    id: "ch09",
+    num: "Cap\u00edtulo 09",
     title: "Matplotlib e Gr\u00e1ficos",
     objective: "Criar gr\u00e1ficos explorat\u00f3rios e informativos com matplotlib e pandas.plot.",
     week: "Semana 4",
@@ -957,13 +859,13 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch10-c1",
+        id: "ch09-c1",
         title: "Dashboard de Vendas",
         description: "DataFrame com 3 produtos mensais. Subplot 3 gráficos: linha, barra, scatter. Custom labels/títulos. Salve PNG.",
         criteria: ["3 subplots", "Tipos corretos", "Labels visíveis", "PNG salvo"],
       },
       {
-        id: "ch10-c2",
+        id: "ch09-c2",
         title: "Distribuição Exploratória",
         description: "Dataset público. Histograma por coluna em subplots. Box plot. Outliers.",
         criteria: ["4+ subplots", "Bins apropriados", "Box legível", "Outliers identificados"],
@@ -971,8 +873,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch11",
-    num: "Cap\u00edtulo 11",
+    id: "ch10",
+    num: "Cap\u00edtulo 10",
     title: "EDA Guiada: Do Dado Novo ao Insight",
     objective: "Aplicar um m\u00e9todo sistem\u00e1tico de an\u00e1lise explorat\u00f3ria em datasets desconhecidos.",
     week: "Semana 4",
@@ -1049,19 +951,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch11-c1",
+        id: "ch10-c1",
         title: "EDA E-commerce",
         description: "CSV com 500 pedidos [cliente_id, data, categoria, valor, estado, entregue]. Aplique 5 etapas. Liste: forma, missing/duplicatas, categoria com maior valor, estado com mais pedidos, correlação valor×entrega.",
         criteria: ["shape/info/describe/isna/value_counts/groupby/corr", "5 descobertas", "1 hipótese"],
       },
       {
-        id: "ch11-c2",
+        id: "ch10-c2",
         title: "Detecção de Anomalias",
         description: "Clientes com idade, renda, gastos, devoluções. Encontre anomalias (impossíveis, suspeitas, outliers). Impacto no negócio.",
         criteria: ["boxplot/quantile", "3+ anomalias", "Impacto explicado"],
       },
       {
-        id: "ch11-c3",
+        id: "ch10-c3",
         title: "Documentação EDA",
         description: "Ciclo completo: roteiro (5 perguntas), execução (código), interpretação, hipóteses (3). Dataset à escolha.",
         criteria: ["5 perguntas", "Código completo", "Interpretação textual", "3 hipóteses"],
@@ -1069,8 +971,8 @@ export const CHAPTERS = [
     ],
   },
   {
-    id: "ch12",
-    num: "Cap\u00edtulo 12",
+    id: "ch11",
+    num: "Cap\u00edtulo 11",
     title: "Case Final: An\u00e1lise de MovieLens",
     objective: "Integrar todas as t\u00e9cnicas do curso em um projeto real de an\u00e1lise de dados.",
     week: "Semana 5",
@@ -1147,19 +1049,19 @@ export const CHAPTERS = [
     ],
     challenges: [
       {
-        id: "ch12-c1",
+        id: "ch11-c1",
         title: "Idade × Gênero",
         description: "Pivot nota média por faixa etária (<18,18-25,25-35,35-45,45+) × gênero (Action, Comedy, Drama). Combinação com nota mais alta?",
         criteria: ["pd.cut", "explode gêneros", "groupby múltiplo", "mean de rating"],
       },
       {
-        id: "ch12-c2",
+        id: "ch11-c2",
         title: "Outliers em Avaliações",
         description: "Usuários que só dão 5 ou só 1 (sem variação). Quantos? Ocupação mais comum?",
         criteria: ["groupby user_id", "std==0", "merge users", "groupby occupation"],
       },
       {
-        id: "ch12-c3",
+        id: "ch11-c3",
         title: "Recomendação Simples",
         description: "Para user_id=100, filmes que ele NÃO viu mas populares em similares (mesma age_group + gender). Top 5.",
         criteria: ["Filtrar perfil", "rating>=4", "Subtrair vistos", "Ordenar popularidade"],
